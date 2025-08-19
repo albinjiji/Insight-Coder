@@ -1,9 +1,32 @@
+'use client';
 import React from 'react'
 
-const LandingPage
- = () => {
+import styles from '../../styles/pages/landing-page.module.css'
+import { buttonLabels, landingPageValues } from '../../constants/frontend-constants'
+import { LightBulbIcon } from '@/components/icons'
+import { useRouter } from 'next/navigation'
+
+const LandingPage = () => {
+
+  const router = useRouter()
+
+  const handleNavigation = () => {
+    router.push('/main-page');
+  };
+ 
   return (
-    <div>LandingPage</div>
+    <div className={styles.container}>
+      <div className={styles.logo}>
+        <span className={styles.logoIcon}><LightBulbIcon /></span>
+        <h1>{landingPageValues.header}</h1>
+      </div>
+      <h2 className={styles.heading}>{landingPageValues.subHeaderOne}<br />{landingPageValues.subHeaderTwo}</h2>
+      <p className={styles.description}>{landingPageValues.description}</p>
+      <div className={styles.buttons}>
+        <button className={styles.primary} onClick={handleNavigation}>{buttonLabels.getStarted}</button>
+      </div>
+      <footer className={styles.footer}>{landingPageValues.header}</footer>
+    </div>
   )
 }
 

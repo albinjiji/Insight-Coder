@@ -1,9 +1,9 @@
-import Link from "next/link";
+import LandingPage from "./landing-page/page";
 
 export default function Home() {
   return (
-    <><h1>Hello World</h1>
-      <Link href={"/landing-page"}>Landing Page</Link>
+    <>
+      <LandingPage />
     </>
   );
 }
