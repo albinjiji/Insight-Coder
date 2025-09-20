@@ -8,3 +8,7 @@ export const landingPageValues = {
 export const buttonLabels = {
     getStarted: 'Get Started',
 };
+
+export const sidebarValues = {
+    newChat: 'New Chat',
+};

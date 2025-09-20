@@ -1,14 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  --background: #171717;
-  --foreground: #171717;
+  --background: linear-gradient(145deg, #0e0e10, #1a1c29, #0e0e10);
+  --foreground: #ffffff;
+  --buttonBackground: #152342;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #171717;
+    --background: linear-gradient(145deg, #0e0e10, #1a1c29, #0e0e10);
+    --foreground: #ffffff;
   }
 }
 

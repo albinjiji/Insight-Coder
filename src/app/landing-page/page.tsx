@@ -11,13 +11,13 @@ const LandingPage = () => {
   const router = useRouter()
 
   const handleNavigation = () => {
-    router.push('/main-page');
+    router.push('/home-page');
   };
  
   return (
     <div className={styles.container}>
       <div className={styles.logo}>
-        <span className={styles.logoIcon}><LightBulbIcon /></span>
+        <span className={styles.logoIcon}><LightBulbIcon height="56px" width="56px" /></span>
         <h1>{landingPageValues.header}</h1>
       </div>
       <h2 className={styles.heading}>{landingPageValues.subHeaderOne}<br />{landingPageValues.subHeaderTwo}</h2>

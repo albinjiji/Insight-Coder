@@ -1,7 +1,7 @@
 .container {
   height: 100vh;
-  background: linear-gradient(145deg, #0e0e10, #1a1c29, #0e0e10);
-  color: white;
+  background: var(--background);
+  color: var(--secondary);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -49,7 +49,7 @@
   font-size: 1.1rem;
   line-height: 1.6;
   margin-bottom: 2rem;
-  color: #f0f0f0;
+  color: var(--secondary);
 }
 
 .buttons {
@@ -60,8 +60,8 @@
 
 .primary {
   padding: 0.75rem 1.5rem;
-  background: #152342;
-  color: white;
+  background: var(--buttonBackground);
+  color: var(--secondary);
   border: none;
   border-radius: 8px;
   font-weight: 600;
@@ -70,6 +70,6 @@
 
 .footer {
   font-size: 0.9rem;
-  color: #e0e0e0;
+  color: var(--secondary);
   margin-top: auto;
 }
