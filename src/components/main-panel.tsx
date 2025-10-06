@@ -1,17 +1,31 @@
-import React from 'react'
-import ChatInput from './chat-input'
-import styles from '../styles/components/main-panel.module.css'
+'use client';
 
-function MainPanel() {
+import React from 'react';
+import { useRouter } from 'next/navigation';
+import styles from '../styles/components/main-panel.module.css';
+import ChatInput from './chat-input';
+import { landingPageValues } from '@/constants/frontend-constants';
+
+export default function MainPanel() {
+  const router = useRouter();
+
+  const handleNewChat = () => {
+    router.push('/home-page');
+  };
+
   return (
-    <div className={styles.mainPanel}>
-      <div className={styles.welcome}>
-        <h1>Hi, I&apos;m InsightCoder.</h1>
-        <p>How can I assist you with your code?</p>
+    <main className={styles.mainPanel}>
+      <header className={styles.header}>
+        <h1 className={styles.headerTitle} onClick={handleNewChat}>
+          {landingPageValues.header}
+        </h1>
+      </header>
+      <section className={styles.messages} aria-live="polite">
+        {/* render your messages here */}
+      </section>
+      <div className={styles.chatInput}>
+        <ChatInput />
       </div>
-      <ChatInput />
-    </div>
-  )
+    </main>
+  );
 }
-
-export default MainPanel

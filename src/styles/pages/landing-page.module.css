@@ -1,6 +1,5 @@
 .container {
   height: 100vh;
-  background: var(--background);
   color: var(--secondary);
   display: flex;
   flex-direction: column;
@@ -9,19 +8,85 @@
   text-align: center;
   padding: 2rem;
   background-size: 400% 400%;
+  min-height: 100vh;
+  overflow: hidden;
+  overflow-x: clip;
+}
+
+/* --- grid background layers (scoped to this page) --- */
+.bgGridOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+
+  /* subtle full-screen grid + soft hotspots */
+  background:
+    radial-gradient(1200px 700px at 20% 15%, rgba(255,255,255,0.08), transparent 60%),
+    radial-gradient(1000px 600px at 80% 85%, rgba(255,255,255,0.06), transparent 60%),
+    repeating-linear-gradient(
+      0deg,
+      rgba(255,255,255,0.06) 0 1px,
+      transparent 1px 80px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255,255,255,0.06) 0 1px,
+      transparent 1px 80px
+    );
+
+  /* fade edges so it doesn't overpower */
+  -webkit-mask-image: radial-gradient(1200px 800px at 25% 25%, #000 60%, transparent 100%);
+  mask-image: radial-gradient(1200px 800px at 25% 25%, #000 60%, transparent 100%);
+  box-shadow: inset 0 0 140px rgba(255,255,255,0.05);
+}
+
+.grid3d {
+  right: -12vw;       /* off-screen a bit */
+  top: 8vh;
+  width: 60vw;
+  height: 60vh;
+  z-index: 0;
+  position: fixed;   /* instead of absolute */
+  pointer-events: none;
+  pointer-events: none;
+
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(255,255,255,0.12) 0 1px,
+      transparent 1px 80px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255,255,255,0.12) 0 1px,
+      transparent 1px 80px
+    );
+
+  transform: perspective(900px) rotateX(58deg) rotateZ(45deg);
+  transform-origin: center;
+  filter: drop-shadow(0 8px 30px rgba(0,0,0,0.6));
+  opacity: 0.35;
+
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 15%, #000 85%, transparent 100%),
+                      linear-gradient(0deg, transparent 0%, #000 25%, #000 85%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 15%, #000 85%, transparent 100%),
+              linear-gradient(0deg, transparent 0%, #000 25%, #000 85%, transparent 100%);
+}
+
+/* keep existing styles… */
+
+.content {
+  position: relative;
+  z-index: 1;
 }
 
 @keyframes gradientShift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
+
 
 .logo {
   display: flex;
@@ -31,6 +96,11 @@
   font-weight: bold;
   margin-bottom: 1rem;
   margin-top: 3rem;
+}
+
+.header {
+  font-weight: 500;
+  font-size: 3rem;
 }
 
 .logoIcon {
@@ -56,6 +126,7 @@
   display: flex;
   gap: 1rem;
   margin-bottom: 2rem;
+  z-index: 100;
 }
 
 .primary {

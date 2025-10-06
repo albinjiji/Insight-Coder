@@ -1,15 +1,17 @@
 'use client';
-import React from 'react'
+import React, { useState } from 'react'
 import styles from '../styles/components/sidebar.module.css'
-import { LightBulbIcon, PlusIcon } from './icons'
+import { CloseIcon, LightBulbIcon, MenuIcon, PlusIcon, ProfileIcon, RightAngleIcon } from './icons'
 import { landingPageValues, sidebarValues } from '@/constants/frontend-constants'
 import { useRouter } from 'next/navigation'
 
 function Sidebar() {
 
   const router = useRouter();
-  const handleNavigation = () => {
-    router.push('/landing-page');
+  const [menuOpen, setMenuOpen] = useState(true);
+
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
   };
 
   const handleNewChat = () => {
@@ -17,22 +19,33 @@ function Sidebar() {
   };
 
   return (
-    <div className={styles.sidebar}>
-      <div className={styles.logo} onClick={handleNavigation}><LightBulbIcon height="30px" width="30px" />{landingPageValues.header}</div>
-      <button className={styles.newReview} onClick={handleNewChat}>
-        <label className={styles.new}>{sidebarValues.newChat}</label>
-        <PlusIcon />
-      </button>
-      <div className={styles.history}>
-        <h4>June 2025</h4>
-        <p>utils.py</p>
-        <h4>May 2025</h4>
-        <p>Refactoring Dashboard</p>
-        <p>Improving Performance</p>
+    <div className={`${styles.sidebar} ${menuOpen ? styles.open : styles.closed}`}>
+      <div className={styles.header}>
+        <div className={styles.logo} onClick={toggleMenu} title={menuOpen ? "Close sidebar" : "Open sidebar"}>
+          <MenuIcon />
+        </div>
+        <button
+          className={styles.closeButton}
+          onClick={toggleMenu}
+          title={"Close sidebar"}>
+          {menuOpen && <CloseIcon />}
+        </button>
+      </div>
+      <div className={styles.menu}>
+        <button className={styles.newReview} onClick={handleNewChat} title="New Session">
+          <PlusIcon />
+          {menuOpen && <label className={styles.label}>{sidebarValues.newSession}</label>}
+        </button>
+
+        <div className={styles.history}>
+          {menuOpen && <h4>{sidebarValues.sessions}</h4>}
+        </div>
       </div>
       <div className={styles.bottom}>
-        <button className={styles.getApp}>📱 Get App</button>
-        <div className={styles.profile}>🧑 My Profile</div>
+        <div className={styles.profile} title={sidebarValues.myProfile}>
+          <ProfileIcon />
+          {menuOpen && <span className={styles.label}>{sidebarValues.myProfile}</span>}
+        </div>
       </div>
     </div>
   )

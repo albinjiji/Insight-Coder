@@ -10,5 +10,7 @@ export const buttonLabels = {
 };
 
 export const sidebarValues = {
-    newChat: 'New Chat',
+    newSession: 'New Session',
+    sessions: 'Sessions',
+    myProfile: 'My Profile',
 };

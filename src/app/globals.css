@@ -1,20 +1,21 @@
-@import "tailwindcss";
+@import "tailwindcss"; 
 
-:root {
-  --background: linear-gradient(145deg, #0e0e10, #1a1c29, #0e0e10);
+:root { 
+  --background: #080b11;
   --foreground: #ffffff;
-  --buttonBackground: #152342;
-}
+  --buttonBackground: #182f5e;
+  --borderColor: #444;
+} 
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: linear-gradient(145deg, #0e0e10, #1a1c29, #0e0e10);
+@media (prefers-color-scheme: dark) { 
+  :root{ 
+    --background: #080b11;
     --foreground: #ffffff;
   }
-}
-
-body {
-  font-family: 'Geist', sans-serif;
-  background: linear-gradient(145deg, #0e0e10, #1a1c29, #0e0e10);
+} 
+  
+body { 
+  font-family: 'Geist', sans-serif; 
+  background: #080b11; 
   color: #ffffff;
 }

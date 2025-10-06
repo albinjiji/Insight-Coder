@@ -4,6 +4,7 @@ import Sidebar from '@/components/sidebar'
 import styles from '../../styles/pages/home-page.module.css'
 
 function HomePage() {
+  
   return (
     <div className={styles.app}>
       <Sidebar />
