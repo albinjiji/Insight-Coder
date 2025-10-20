@@ -1,0 +1,107 @@
+.messageWrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  margin: 0.5rem 0;
+}
+
+.userMessage {
+  display: flex;
+  align-items: flex-end;
+  margin: 0.5rem 0;
+}
+
+.assistantMessage {
+  align-items: flex-start;
+}
+
+/* Markdown content spacing & formatting */
+.messageBubble h1,
+.messageBubble h2,
+.messageBubble h3,
+.messageBubble h4 {
+  font-weight: 600; /* bold headings */
+  margin-top: 1.2rem; /* add vertical spacing above */
+  margin-bottom: 0.6rem; /* add space below */
+  line-height: 1.4;
+}
+
+.messageBubble p {
+  margin: 0.4rem 0; /* add paragraph spacing */
+}
+
+.messageBubble ol,
+.messageBubble ul {
+  margin: 0.6rem 1.5rem; /* add left padding for lists */
+  line-height: 1.6;
+}
+
+.messageBubble strong {
+  font-weight: 700;
+  color: #f3f4f6; /* soft white for contrast in dark mode */
+}
+
+/* Optional: make inline <code> stand out more inside text */
+.messageBubble code {
+  background: rgba(75, 85, 99, 0.3);
+  color: #d1d5db;
+  padding: 0.1rem 0.4rem;
+  border-radius: 0.3rem;
+  font-family: 'Fira Code', monospace;
+}
+
+.userBubble {
+  background: #07090f;
+  color: #ffffff;
+  border-radius: 0.75rem;
+  border-top-right-radius: 0rem;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  max-width: 75%;
+  word-wrap: break-word;
+  align-self: flex-end;
+  text-align: left;
+}
+
+.userPlainText {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #fff;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.assistantBubble {
+  color: #e5e7eb;
+  border-top-left-radius: 0.25rem;
+  width: 90%;
+}
+
+.assistantInlineCode {
+  background: rgba(55, 65, 81, 0.3);
+  color: #e5e7eb;
+  padding: 0.15rem 0.4rem;
+  border-radius: 0.3rem;
+  font-family: 'Fira Code', 'Courier New', monospace;
+}
+
+.codeBlockWrapper {
+  position: relative;
+  margin-top: 0.5rem;
+}
+
+.copyButton {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.6rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.copyButton:hover {
+  color: #ffffff;
+}

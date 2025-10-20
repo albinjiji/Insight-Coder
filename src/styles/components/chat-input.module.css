@@ -5,14 +5,10 @@
   margin-top:auto;
 }
 
-/* Two-row grid:
-   Row 1 (auto): textarea
-   Row 2 (40px): buttons bar
-*/
 .composer{
   display:grid;
-  grid-template-columns: 36px 1fr 40px;  /* + | textarea | send */
-  grid-template-rows: auto 40px;         /* input grows, buttons fixed */
+  grid-template-columns: 36px 1fr 40px;
+  grid-template-rows: auto 40px;
   column-gap: 8px;
   row-gap: 8px;
 
@@ -34,7 +30,7 @@
 .textarea{
   width:100%;
   min-height:44px;
-  max-height: calc(22px * 6);     /* match JS autosize cap */
+  max-height: calc(22px * 3);     /* match JS autosize cap */
   line-height:22px;
   color:#e6e6e6;
   background:transparent;

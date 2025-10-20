@@ -1,21 +1,21 @@
 'use client';
 import React, { useState } from 'react'
 import styles from '../styles/components/sidebar.module.css'
-import { CloseIcon, LightBulbIcon, MenuIcon, PlusIcon, ProfileIcon, RightAngleIcon } from './icons'
-import { landingPageValues, sidebarValues } from '@/constants/frontend-constants'
-import { useRouter } from 'next/navigation'
+import { CloseIcon, MenuIcon, PlusIcon, ProfileIcon } from './icons'
+import { sidebarValues } from '@/constants/frontend-constants'
 
-function Sidebar() {
+interface SideBarProps {
+  onNewChat: () => void;
+}
 
-  const router = useRouter();
+function Sidebar({
+  onNewChat,
+}: SideBarProps) {
+
   const [menuOpen, setMenuOpen] = useState(true);
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
-  };
-
-  const handleNewChat = () => {
-    router.push('/home-page');
   };
 
   return (
@@ -32,7 +32,7 @@ function Sidebar() {
         </button>
       </div>
       <div className={styles.menu}>
-        <button className={styles.newReview} onClick={handleNewChat} title="New Session">
+        <button className={styles.newReview} onClick={onNewChat} title="New Session">
           <PlusIcon />
           {menuOpen && <label className={styles.label}>{sidebarValues.newSession}</label>}
         </button>
