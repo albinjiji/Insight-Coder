@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# InsightCoder
 
-## Getting Started
+**AI-powered coding assistant** for the browser. InsightCoder helps you write, debug, and learn code with clear explanations, syntax-highlighted snippets, and a chat UX that supports multi-turn **clarifications**.
 
-First, run the development server:
+[![Next.js](https://img.shields.io/badge/Next.js-14+-black)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue)](https://www.typescriptlang.org/)
+[![Redux Toolkit](https://img.shields.io/badge/State-Redux%20Toolkit-764abc)](https://redux-toolkit.js.org/)
+[![Google Gemini](https://img.shields.io/badge/AI-Gemini-0b57d0)](https://ai.google.dev/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](#license)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## ✨ Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Chat UX** with history, auto-titles, delete chat, and “New Chat”
+- **Code-aware answers** (Gemini 2.5 Flash with fallback to 1.5 Flash)
+- **Classification gate** to filter non-coding queries
+- **Clarify flow**: asks for missing context and chains follow-ups
+- **Markdown + syntax highlighting** (Prism one-dark)
+- **Redux Toolkit** app state (no localStorage)
+- **Keyboard**: `Enter` to send, `Shift+Enter` for newline
+- **Dark, clean UI** with CSS Modules
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🖼️ Stack
 
-To learn more about Next.js, take a look at the following resources:
+- **Next.js (App Router)**, **React 18**, **TypeScript**
+- **Redux Toolkit** (slice + async thunk)
+- **Google Gemini** via `@google/genai` (called from a Next.js API route)
+- **react-markdown** + **react-syntax-highlighter** (Prism oneDark)
+- **uuid** for v4 IDs
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📁 Project Structure
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+src/
+app/
+api/
+gemini/
+route.ts # Server route → calls Google Gemini
+home-page/
+page.tsx # App shell (Sidebar + MainPanel)
+layout.tsx # Wraps Redux Provider
+page.tsx # Landing page
+components/
+chat-input.tsx
+main-panel.tsx
+response-message.tsx
+sidebar.tsx
+icons.tsx
+features/
+chat/
+chatSlice.ts # Redux slice (chats, selection, clarify, loading)
+chatThunks.ts # sendMessage() async flow
+hooks/
+redux.ts # typed hooks (useAppDispatch/useAppSelector)
+lib/
+geminiClient.ts # classify → correct → answer → clarify helpers
+styles/
+components/.module.css
+pages/.module.css
+types/
+chat.ts # Message / ChatSession types
+store.ts # configureStore (adds chat reducer)
