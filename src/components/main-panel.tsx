@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import styles from '../styles/components/main-panel.module.css';
 import ChatInput from './chat-input';
-import { landingPageValues } from '@/constants/frontend-constants';
+import { landingPageValues, mainPanelValues } from '@/constants/frontend-constants';
 import ResponseMessage from './response-message';
 
 interface Message {
@@ -10,17 +10,15 @@ interface Message {
 }
 
 interface MainPanelProps {
-  onSend: (text: string) => void;
-  onNewChat: () => void;
-  messages: Message[];
   isLoading: boolean;
+  messages: Message[];
+  onSend: (text: string) => void;
 }
 
 export default function MainPanel({
-  onSend,
-  onNewChat,
-  messages,
   isLoading,
+  messages,
+  onSend,
 }: MainPanelProps) {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -32,7 +30,7 @@ export default function MainPanel({
     <main className={styles.mainPanel}>
       {/* Header */}
       <header className={styles.header}>
-        <h1 className={styles.headerTitle} onClick={onNewChat}>
+        <h1 className={styles.headerTitle}>
           {landingPageValues.header}
         </h1>
       </header>
@@ -42,8 +40,8 @@ export default function MainPanel({
 
         {messages.length === 0 && (
           <div className={styles.placeholder}>
-            <h2>Welcome to InsightCoder</h2>
-            <p>Ask me to debug, explain, or generate any piece of code.</p>
+            <h2>{mainPanelValues.welcomeTitle}</h2>
+            <p>{mainPanelValues.welcomeSubtitle}</p>
           </div>
         )}
 
@@ -53,7 +51,7 @@ export default function MainPanel({
 
         {isLoading && (
           <div className={styles.thinking}>
-            <span>Analyzing...</span>
+            <span>{mainPanelValues.thinking}</span>
             <div className={styles.spinner}></div>
           </div>
         )}

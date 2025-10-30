@@ -1,42 +1,73 @@
-import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenAI } from "@google/genai";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { NextRequest, NextResponse } from 'next/server';
+import { GoogleGenAI } from '@google/genai';
 
 const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY || "",
+  apiKey: process.env.GEMINI_API_KEY || '',
 });
+
+// Try primary → fallback
+const FALLBACKS = ['gemini-2.5-flash', 'gemini-1.5-flash'] as const;
+const sleep = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+function isOverloaded(e: any) {
+  try {
+    const code = e?.error?.code ?? e?.code;
+    const status = e?.error?.status ?? e?.status;
+    if (code === 503 || status === 'UNAVAILABLE') return true;
+    const msg = typeof e === 'string' ? e : e?.message;
+    return typeof msg === 'string' && (msg.includes('UNAVAILABLE') || msg.includes('503'));
+  } catch {
+    return false;
+  }
+}
 
 export async function POST(req: NextRequest) {
   try {
-    const { prompt } = await req.json();
+    const body = await req.json();
+    const prompt: string = body?.prompt;
+    const preferredModel: string | undefined = body?.model;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: prompt,
-    });
+    if (!prompt || typeof prompt !== 'string' || !prompt.trim()) {
+      return NextResponse.json({ error: 'Missing or invalid prompt.' }, { status: 400 });
+    }
 
-    // New SDK wraps text under `response.output[0].content.parts[0].text` sometimes.
-    type GeminiResponse = {
-      output?: Array<{
-        content?: {
-          parts?: Array<{
-            text?: string;
-          }>;
-        };
-      }>;
-      text?: string;
-    };
+    // preferred first, then fallbacks
+    const models = preferredModel
+      ? [preferredModel, ...FALLBACKS.filter(m => m !== preferredModel)]
+      : [...FALLBACKS];
 
-    const resp = response as unknown as GeminiResponse;
-    const text =
-      resp.output?.[0]?.content?.parts?.[0]?.text ??
-      resp.text ??
-      "No response text.";
+    for (const model of models) {
+      let attempt = 0;
+      while (attempt <= 2) {
+        try {
+          const response = await ai.models.generateContent({ model, contents: prompt });
 
-    return NextResponse.json({ text });
-  } catch (error: unknown) {
-    console.error("Gemini API Error:", error);
+          // Normalize SDK response shape
+          const out: any = response;
+          const text =
+            out?.output?.[0]?.content?.parts?.[0]?.text ??
+            out?.text ??
+            'No response text.';
+
+          return NextResponse.json({ text, modelUsed: model }, { status: 200 });
+        } catch (err: any) {
+          attempt++;
+          if (!isOverloaded(err) || attempt > 2) break;
+          const delay = Math.min(2000, 400 * 2 ** (attempt - 1));
+          await sleep(delay);
+        }
+      }
+      // try next model
+    }
+
+    return NextResponse.json(
+      { error: 'All models overloaded. Please try again shortly.' },
+      { status: 503 }
+    );
+  } catch (error: any) {
     const message =
-      error instanceof Error ? error.message : typeof error === "string" ? error : "An unknown error occurred";
+      error?.message || 'Unknown server error while contacting Gemini.';
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

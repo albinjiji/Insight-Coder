@@ -6,6 +6,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import styles from '../styles/components/response-message.module.css';
 import { CopyIcon } from './icons';
+import { responseMessagesValues } from '@/constants/frontend-constants';
 
 interface ResponseMessageProps {
   text: string;
@@ -45,6 +46,7 @@ export default function ResponseMessage({
                   return (
                     <div className={styles.codeBlockWrapper}>
                       <SyntaxHighlighter
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         style={oneDark as any}
                         language={match[1]}
                         PreTag="div"
@@ -64,7 +66,7 @@ export default function ResponseMessage({
                         onClick={() =>
                           navigator.clipboard.writeText(String(children))
                         }
-                        title="Copy code to clipboard"
+                        title={responseMessagesValues.copyIconTitle}
                       >
                         <CopyIcon />
                       </button>

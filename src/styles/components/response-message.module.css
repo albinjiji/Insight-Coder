@@ -9,10 +9,12 @@
   display: flex;
   align-items: flex-end;
   margin: 0.5rem 0;
+  padding: 0rem 1rem;
 }
 
 .assistantMessage {
   align-items: flex-start;
+  padding: 0rem 1rem;
 }
 
 /* Markdown content spacing & formatting */

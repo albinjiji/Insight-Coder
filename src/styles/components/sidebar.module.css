@@ -101,7 +101,7 @@
 .history h4 {
   margin: 1rem 0 0.3rem;
   font-size: 0.9rem;
-  color: #888;
+  color: #a09c9c;
   margin-top: 1rem;
 }
 
@@ -155,5 +155,59 @@
 }
 
 .closed .newReview {
+  justify-content: center;
+}
+
+.chatList {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.chatItem {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0.7rem 0.9rem;
+  border-radius: 0.5rem;
+  font-weight: 400;
+  line-height: 1.4;
+  color: #e5e7eb;
+  cursor: pointer;
+  height: 44px;
+}
+
+.title {
+  flex: 1;          /* fill available space */
+  min-width: 0;     /* IMPORTANT for ellipsis in flex items */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.9rem;
+}
+
+.chatItem:hover {
+  background: #101214;
+}
+
+.active {
+  background: #101214;
+  color: white;
+  font-weight: 500;
+}
+
+.empty {
+  color: #FFFFFF;
+  text-align: start;
+  margin-top: 2rem;
+  font-size: 0.9rem;
+}
+
+.deleteBtn {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
   justify-content: center;
 }

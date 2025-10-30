@@ -1,10 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { geminiApi } from "@/features/gemini/gemini-slice";
+import chatReducer from "../features/chat/chat-slice";
 
 export const store = configureStore({
   reducer: {
-    [geminiApi.reducerPath]: geminiApi.reducer,
+    chat: chatReducer,
   },
     middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(geminiApi.middleware),
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }),
 });

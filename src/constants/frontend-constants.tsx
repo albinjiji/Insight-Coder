@@ -10,7 +10,26 @@ export const buttonLabels = {
 };
 
 export const sidebarValues = {
-    newSession: 'New Session',
-    sessions: 'Sessions',
+    newChat: 'New Chat',
+    chats: 'Chats',
     myProfile: 'My Profile',
+    noChats: 'No chats yet',
+    deleteChatTitle: 'Delete chat',
+};
+
+export const roleTypes = {
+    user: 'user',
+    assistant: 'assistant',
+} as const;
+
+export const nonCodeFallbackMessage = "This question doesn't seem related to coding or debugging. InsightCoder helps with programming, debugging, and code learning assistance.";
+
+export const mainPanelValues = {
+    welcomeTitle: 'Welcome to InsightCoder',
+    welcomeSubtitle: 'Ask me to debug, explain, or generate any piece of code.',
+    thinking: 'Thinking...',
+};
+
+export const responseMessagesValues = {
+    copyIconTitle: 'Copy to clipboard',
 };

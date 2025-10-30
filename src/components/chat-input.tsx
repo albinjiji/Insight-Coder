@@ -40,8 +40,6 @@ export default function ChatInput({ onSend }: { onSend?: (text: string) => void 
     requestAnimationFrame(autosize);
   };
 
-  console.log('value', value);
-
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     send();
