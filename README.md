@@ -36,31 +36,31 @@
 ## 📁 Project Structure
 
 src/
-app/
-api/
-gemini/
-route.ts # Server route → calls Google Gemini
-home-page/
-page.tsx # App shell (Sidebar + MainPanel)
-layout.tsx # Wraps Redux Provider
-page.tsx # Landing page
-components/
-chat-input.tsx
-main-panel.tsx
-response-message.tsx
-sidebar.tsx
-icons.tsx
-features/
-chat/
-chatSlice.ts # Redux slice (chats, selection, clarify, loading)
-chatThunks.ts # sendMessage() async flow
-hooks/
-redux.ts # typed hooks (useAppDispatch/useAppSelector)
-lib/
-geminiClient.ts # classify → correct → answer → clarify helpers
-styles/
-components/.module.css
-pages/.module.css
-types/
-chat.ts # Message / ChatSession types
-store.ts # configureStore (adds chat reducer)
+  app/
+    api/
+      gemini/
+        route.ts               # Server route → calls Google Gemini
+    home-page/
+      page.tsx                 # App shell (Sidebar + MainPanel)
+    layout.tsx                 # Wraps Redux Provider
+    page.tsx                   # Landing page
+  components/
+    chat-input.tsx
+    main-panel.tsx
+    response-message.tsx
+    sidebar.tsx
+    icons.tsx
+  features/
+    chat/
+      chatSlice.ts             # Redux slice (chats, selection, clarify, loading)
+      chatThunks.ts            # sendMessage() async flow
+  hooks/
+    redux.ts                   # typed hooks (useAppDispatch/useAppSelector)
+  lib/
+    geminiClient.ts            # classify → correct → answer → clarify helpers
+  styles/
+    components/                # *.module.css for components
+    pages/                     # *.module.css for pages
+  types/
+    chat.ts                    # Message / ChatSession types
+  store.ts                     # configureStore (adds chat reducer)
