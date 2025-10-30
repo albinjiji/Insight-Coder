@@ -65,14 +65,11 @@
    │
    ├─ features/
    │  └─ chat/
-   │     ├─ chatSlice.ts       # Redux slice (chats, selection, clarify, loading)
-   │     └─ chatThunks.ts      # sendMessage() async flow
-   │
-   ├─ hooks/
-   │  └─ redux.ts              # typed hooks (useAppDispatch/useAppSelector)
+   │     ├─ chat-slice.ts       # Redux slice (chats, selection, clarify, loading)
+   │     └─ chat-thunks.ts      # sendMessage() async flow
    │
    ├─ lib/
-   │  └─ geminiClient.ts       # classify → correct → answer → clarify helpers
+   │  └─ gemini-client.ts       # classify → correct → answer → clarify helpers
    │
    ├─ styles/
    │  ├─ components/           # *.module.css for components
