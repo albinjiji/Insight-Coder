@@ -53,7 +53,7 @@ export default function ResponseMessage({
                         customStyle={{
                           borderRadius: '0.5rem',
                           padding: '1rem',
-                          background: '#07090f',
+                          background: '#111622',
                           fontSize: '0.9rem',
                           overflowX: 'auto',
                         }}

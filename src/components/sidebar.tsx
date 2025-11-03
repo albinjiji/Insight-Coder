@@ -68,10 +68,10 @@ function Sidebar({
                 {chat.title.length > 20 ? `${chat.title.slice(0, 20)}…` : chat.title}
               </span>
               <button
-              className={styles.deleteBtn}
-              aria-label={sidebarValues.deleteChatTitle}
-              title={sidebarValues.deleteChatTitle}
-              onClick={(e) => {handleDelete(e, chat.id)}}
+                className={styles.deleteBtn}
+                aria-label={sidebarValues.deleteChatTitle}
+                title={sidebarValues.deleteChatTitle}
+                onClick={(e) => {handleDelete(e, chat.id)}}
               >
                 <DeleteIcon />
               </button>

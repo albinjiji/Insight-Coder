@@ -5,6 +5,16 @@
   --foreground: #ffffff;
   --buttonBackground: #182f5e;
   --borderColor: #444;
+  --textFieldPlaceholderColor: #9aa0a6;
+  --textFieldBackground: #151515;
+  --textFieldBorderColor: #2a2a2a;
+  --mainPanelPlaceholderColor: #9ca3af;
+  --userBubbleBackgroundColor: #0d1325;
+  --sidebarBackgroundColor: #1e1e1e;
+  --buttonHoverBackgroundColor: #2d2d2d;
+  --sidebarSubHeaderColor: #a09c9c;
+  --chatItemHoverColor: #101214;
+  --blackColor: #000;
 } 
 
 @media (prefers-color-scheme: dark) { 

@@ -40,21 +40,21 @@
 
 .messageBubble strong {
   font-weight: 700;
-  color: #f3f4f6; /* soft white for contrast in dark mode */
+  color: var(--foreground);
 }
 
 /* Optional: make inline <code> stand out more inside text */
 .messageBubble code {
   background: rgba(75, 85, 99, 0.3);
-  color: #d1d5db;
+  color: var(--foreground);
   padding: 0.1rem 0.4rem;
   border-radius: 0.3rem;
   font-family: 'Fira Code', monospace;
 }
 
 .userBubble {
-  background: #07090f;
-  color: #ffffff;
+  background: var(--userBubbleBackgroundColor);
+  color: var(--foreground);
   border-radius: 0.75rem;
   border-top-right-radius: 0rem;
   padding: 0.75rem 1rem;
@@ -70,20 +70,20 @@
   margin: 0;
   font-size: 1rem;
   line-height: 1.5;
-  color: #fff;
+  color: var(--foreground);
   white-space: pre-wrap;
   word-wrap: break-word;
 }
 
 .assistantBubble {
-  color: #e5e7eb;
+  color: var(--foreground);
   border-top-left-radius: 0.25rem;
   width: 90%;
 }
 
 .assistantInlineCode {
   background: rgba(55, 65, 81, 0.3);
-  color: #e5e7eb;
+  color: var(--foreground);
   padding: 0.15rem 0.4rem;
   border-radius: 0.3rem;
   font-family: 'Fira Code', 'Courier New', monospace;
@@ -105,5 +105,5 @@
 }
 
 .copyButton:hover {
-  color: #ffffff;
+  color: var(--foreground);
 }

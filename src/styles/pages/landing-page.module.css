@@ -13,14 +13,12 @@
   overflow-x: clip;
 }
 
-/* --- grid background layers (scoped to this page) --- */
 .bgGridOverlay {
   position: absolute;
   inset: 0;
   z-index: 0;
   pointer-events: none;
 
-  /* subtle full-screen grid + soft hotspots */
   background:
     radial-gradient(1200px 700px at 20% 15%, rgba(255,255,255,0.08), transparent 60%),
     radial-gradient(1000px 600px at 80% 85%, rgba(255,255,255,0.06), transparent 60%),
@@ -35,19 +33,18 @@
       transparent 1px 80px
     );
 
-  /* fade edges so it doesn't overpower */
-  -webkit-mask-image: radial-gradient(1200px 800px at 25% 25%, #000 60%, transparent 100%);
-  mask-image: radial-gradient(1200px 800px at 25% 25%, #000 60%, transparent 100%);
+  -webkit-mask-image: radial-gradient(1200px 800px at 25% 25%, var(--blackColor) 60%, transparent 100%);
+  mask-image: radial-gradient(1200px 800px at 25% 25%, var(--blackColor) 60%, transparent 100%);
   box-shadow: inset 0 0 140px rgba(255,255,255,0.05);
 }
 
 .grid3d {
-  right: -12vw;       /* off-screen a bit */
+  right: -12vw;
   top: 8vh;
   width: 60vw;
   height: 60vh;
   z-index: 0;
-  position: fixed;   /* instead of absolute */
+  position: fixed;
   pointer-events: none;
   pointer-events: none;
 
@@ -68,13 +65,11 @@
   filter: drop-shadow(0 8px 30px rgba(0,0,0,0.6));
   opacity: 0.35;
 
-  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 15%, #000 85%, transparent 100%),
-                      linear-gradient(0deg, transparent 0%, #000 25%, #000 85%, transparent 100%);
-  mask-image: linear-gradient(90deg, transparent 0%, #000 15%, #000 85%, transparent 100%),
-              linear-gradient(0deg, transparent 0%, #000 25%, #000 85%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, var(--blackColor) 15%, var(--blackColor) 85%, transparent 100%),
+                      linear-gradient(0deg, transparent 0%, var(--blackColor) 25%, var(--blackColor) 85%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, var(--blackColor) 15%, var(--blackColor) 85%, transparent 100%),
+              linear-gradient(0deg, transparent 0%, var(--blackColor) 25%, var(--blackColor) 85%, transparent 100%);
 }
-
-/* keep existing styles… */
 
 .content {
   position: relative;
