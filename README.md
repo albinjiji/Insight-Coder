@@ -12,7 +12,7 @@
 ## ✨ Features
 
 - **Chat UX** with history, auto-titles, delete chat, and “New Chat”
-- **Code-aware answers** (Gemini 2.5 Flash with fallback to 1.5 Flash)
+- **Code-aware answers** (Gemini 3 Flash Preview with fallback to 1.5 Flash)
 - **Classification gate** (filters non-coding queries with a friendly message)
 - **Clarify flow**: asks for missing context; supports chained clarifications
 - **Markdown + syntax highlighting** (react-markdown + Prism oneDark)
@@ -131,20 +131,20 @@ The API endpoint at:
 accepts POST requests with:
 
 ```json
-{ "prompt": "your text", "model": "gemini-2.5-flash | gemini-1.5-flash" }
+{ "prompt": "your text", "model": "gemini-3-flash-preview | gemini-1.5-flash" }
 ```
 
 and returns:
 
 ```json
-{ "text": "model response", "modelUsed": "gemini-2.5-flash" }
+{ "text": "model response", "modelUsed": "gemini-3-flash-preview" }
 ```
 
 - The route normalizes SDK responses and **retries/falls back** if a model is UNAVAILABLE / 503.
 
 #### Models used
 
-- **gemini-2.5-flash** (primary generation)
+- **gemini-3-flash-preview** (primary generation)
 - **gemini-1.5-flash** (classification, typo-correction, fallback generation)
 
 ---
@@ -162,7 +162,7 @@ Implemented across `chatThunks.ts` and `lib/geminiClient.ts`:
 - **Normal mode**:
   - Classify (is it coding-related?) → if not, show a friendly non-code message
   - Correct typos for technical terms
-  - Answer (2.5 → 1.5 with retries/fallback)
+  - Answer (3 → 1.5 with retries/fallback)
   - If weak/ambiguous, return a single `Clarify:` line
 
 ---
