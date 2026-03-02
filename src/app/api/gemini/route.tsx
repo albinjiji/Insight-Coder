@@ -7,7 +7,7 @@ const ai = new GoogleGenAI({
 });
 
 // Try primary → fallback
-const FALLBACKS = ['gemini-2.5-flash', 'gemini-1.5-flash'] as const;
+const FALLBACKS = ['gemini-3-flash-preview', 'gemini-1.5-flash'] as const;
 const sleep = (ms: number) => new Promise(res => setTimeout(res, ms));
 
 function isOverloaded(e: any) {

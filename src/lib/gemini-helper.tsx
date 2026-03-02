@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export type ModelName = 'gemini-2.5-flash' | 'gemini-1.5-flash';
+export type ModelName = 'gemini-3-flash-preview' | 'gemini-1.5-flash';
 
-const FALLBACKS: ModelName[] = ['gemini-2.5-flash', 'gemini-1.5-flash'];
+const FALLBACKS: ModelName[] = ['gemini-3-flash-preview', 'gemini-1.5-flash'];
 const NON_CODE_FALLBACK_MESSAGE =
   "This question doesn't seem related to coding or debugging. InsightCoder helps with programming, debugging, and code learning assistance.";
 
@@ -76,13 +76,13 @@ export async function classifyCodeRelated(prompt: string): Promise<boolean> {
     "${prompt}"
     `.trim();
 
-    try {
-      const cls = await postGemini(classificationPrompt, 'gemini-1.5-flash');
-      const isTrue = cls.text?.toLowerCase().includes('true');
-      return isTrue || looksCodey(prompt);
-    } catch {
-      return looksCodey(prompt);
-    }
+  try {
+    const cls = await postGemini(classificationPrompt, 'gemini-1.5-flash');
+    const isTrue = cls.text?.toLowerCase().includes('true');
+    return isTrue || looksCodey(prompt);
+  } catch {
+    return looksCodey(prompt);
+  }
 }
 
 /** Correct typos in technical terms before answering. */
@@ -124,7 +124,7 @@ export async function generateAnswerWithFallback(prompt: string): Promise<string
   try {
     const { text } = await requestWithRetries(answerPrompt);
     return (text || '').trim();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
     // requestWithRetries already tried 2.5 then 1.5
     return 'The model is busy. Please try again in a moment.';
