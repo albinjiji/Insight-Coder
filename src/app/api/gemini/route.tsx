@@ -22,7 +22,15 @@ function isOverloaded(e: any) {
   }
 }
 
+// ═══ Standard (non-streaming) POST ═══
 export async function POST(req: NextRequest) {
+  const url = new URL(req.url);
+  const stream = url.searchParams.get('stream') === 'true';
+
+  if (stream) {
+    return handleStream(req);
+  }
+
   try {
     const body = await req.json();
     const prompt: string = body?.prompt;
@@ -32,7 +40,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing or invalid prompt.' }, { status: 400 });
     }
 
-    // preferred first, then fallbacks
     const models = preferredModel
       ? [preferredModel, ...FALLBACKS.filter(m => m !== preferredModel)]
       : [...FALLBACKS];
@@ -42,14 +49,11 @@ export async function POST(req: NextRequest) {
       while (attempt <= 2) {
         try {
           const response = await ai.models.generateContent({ model, contents: prompt });
-
-          // Normalize SDK response shape
           const out: any = response;
           const text =
             out?.output?.[0]?.content?.parts?.[0]?.text ??
             out?.text ??
             'No response text.';
-
           return NextResponse.json({ text, modelUsed: model }, { status: 200 });
         } catch (err: any) {
           attempt++;
@@ -58,7 +62,6 @@ export async function POST(req: NextRequest) {
           await sleep(delay);
         }
       }
-      // try next model
     }
 
     return NextResponse.json(
@@ -69,5 +72,76 @@ export async function POST(req: NextRequest) {
     const message =
       error?.message || 'Unknown server error while contacting Gemini.';
     return NextResponse.json({ error: message }, { status: 500 });
+  }
+}
+
+// ═══ Streaming handler ═══
+async function handleStream(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const prompt: string = body?.prompt;
+    const preferredModel: string | undefined = body?.model;
+
+    if (!prompt || typeof prompt !== 'string' || !prompt.trim()) {
+      return NextResponse.json({ error: 'Missing or invalid prompt.' }, { status: 400 });
+    }
+
+    const models = preferredModel
+      ? [preferredModel, ...FALLBACKS.filter(m => m !== preferredModel)]
+      : [...FALLBACKS];
+
+    // Try each model until one streams successfully
+    for (const model of models) {
+      try {
+        const streamResponse = await ai.models.generateContentStream({
+          model,
+          contents: prompt,
+        });
+
+        const encoder = new TextEncoder();
+        const readable = new ReadableStream({
+          async start(controller) {
+            try {
+              for await (const chunk of streamResponse) {
+                const text = (chunk as any)?.text ?? '';
+                if (text) {
+                  // Send as Server-Sent Events format
+                  controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text, modelUsed: model })}\n\n`));
+                }
+              }
+              controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+              controller.close();
+            } catch (err) {
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: 'Stream interrupted' })}\n\n`));
+              controller.close();
+              console.error('Stream error:', err);
+            }
+          },
+        });
+
+        return new Response(readable, {
+          headers: {
+            'Content-Type': 'text/event-stream',
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+          },
+        });
+      } catch (err: any) {
+        if (!isOverloaded(err)) {
+          return NextResponse.json({ error: err?.message || 'Stream failed' }, { status: 500 });
+        }
+        // Try next model
+      }
+    }
+
+    return NextResponse.json(
+      { error: 'All models overloaded. Please try again shortly.' },
+      { status: 503 }
+    );
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error?.message || 'Unknown server error.' },
+      { status: 500 }
+    );
   }
 }

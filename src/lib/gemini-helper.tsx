@@ -24,6 +24,59 @@ export async function postGemini(prompt: string, model: ModelName) {
   return data as { text: string; modelUsed?: string };
 }
 
+/** Stream response from the API route via Server-Sent Events. */
+export async function streamGemini(
+  prompt: string,
+  model: ModelName,
+  onChunk: (accumulated: string) => void,
+): Promise<string> {
+  const res = await fetch('/api/gemini?stream=true', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt, model }),
+  });
+
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data?.error || 'Stream request failed');
+  }
+
+  const reader = res.body?.getReader();
+  if (!reader) throw new Error('No readable stream');
+
+  const decoder = new TextDecoder();
+  let accumulated = '';
+  let buffer = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop() || ''; // keep incomplete line in buffer
+
+    for (const line of lines) {
+      if (!line.startsWith('data: ')) continue;
+      const payload = line.slice(6).trim();
+      if (payload === '[DONE]') break;
+
+      try {
+        const parsed = JSON.parse(payload);
+        if (parsed.error) throw new Error(parsed.error);
+        if (parsed.text) {
+          accumulated += parsed.text;
+          onChunk(accumulated);
+        }
+      } catch {
+        // skip malformed chunks
+      }
+    }
+  }
+
+  return accumulated || 'No response received.';
+}
+
 function isOverloadError(err: unknown): boolean {
   const data: any = (err as any)?.data ?? (err as any);
   const raw = data?.error ?? data?.message ?? data;

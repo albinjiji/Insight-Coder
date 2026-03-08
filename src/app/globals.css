@@ -1,8 +1,8 @@
 @import "tailwindcss"; 
 
 :root { 
-  --background: #080b11;
-  --foreground: #ffffff;
+  --background: #0a0d14;
+  --foreground: #e4e4e7;
   --buttonBackground: #182f5e;
   --borderColor: #444;
   --textFieldPlaceholderColor: #9aa0a6;
@@ -10,22 +10,62 @@
   --textFieldBorderColor: #2a2a2a;
   --mainPanelPlaceholderColor: #9ca3af;
   --userBubbleBackgroundColor: #0d1325;
-  --sidebarBackgroundColor: #1e1e1e;
+  --sidebarBackgroundColor: #111318;
   --buttonHoverBackgroundColor: #2d2d2d;
   --sidebarSubHeaderColor: #a09c9c;
   --chatItemHoverColor: #101214;
   --blackColor: #000;
+
+  /* IDE Theme Variables */
+  --panel-bg: #12151c;
+  --panel-bg-elevated: #161a24;
+  --panel-border: #1e2230;
+  --panel-border-subtle: #1a1d28;
+  --accent-blue: #3b82f6;
+  --accent-blue-hover: #2563eb;
+  --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  --toolbar-bg: #0e1019;
+  --response-bg: #12151c;
+  --tab-inactive: #6b7280;
+  --tab-active: #f1f5f9;
+  --success-green: #22c55e;
+  --warning-amber: #f59e0b;
+  --error-red: #ef4444;
+  --surface-hover: rgba(255, 255, 255, 0.04);
+  --glass-bg: rgba(18, 21, 28, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.06);
 } 
 
 @media (prefers-color-scheme: dark) { 
   :root{ 
-    --background: #080b11;
-    --foreground: #ffffff;
+    --background: #0a0d14;
+    --foreground: #e4e4e7;
   }
 } 
   
 body { 
   font-family: 'Geist', sans-serif; 
-  background: #080b11; 
-  color: #ffffff;
+  background: #0a0d14; 
+  color: #e4e4e7;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar for the IDE feel */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.18);
 }
