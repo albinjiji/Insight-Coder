@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
-import styles from '../styles/components/confirm-dialog.module.css';
+import styles from '../styles/components/ConfirmDialog.module.css';
 
 interface ConfirmDialogProps {
     isOpen: boolean;

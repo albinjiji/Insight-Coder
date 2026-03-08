@@ -1,0 +1,24 @@
+.workspace {
+    display: grid;
+    grid-template-columns: 1fr 1px 1fr;
+    overflow: hidden;
+    min-height: 0;
+    flex: 1;
+}
+
+.divider {
+    background: var(--panel-border);
+    transition: background 0.2s ease;
+}
+
+/* For future resizability */
+.dividerActive {
+    background: var(--accent-blue);
+}
+
+@media (max-width: 768px) {
+    .workspace {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr 1px 1fr;
+    }
+}

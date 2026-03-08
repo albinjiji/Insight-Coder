@@ -1,7 +1,7 @@
 'use client';
 import React, { useRef, useState } from 'react';
-import styles from '../styles/components/chat-input.module.css';
-import { PlusIcon, SendIcon } from './icons';
+import styles from '../styles/components/ChatInput.module.css';
+import { PlusIcon, SendIcon } from './Icons';
 
 export default function ChatInput({ onSend }: { onSend?: (text: string) => void }) {
   const [value, setValue] = useState('');

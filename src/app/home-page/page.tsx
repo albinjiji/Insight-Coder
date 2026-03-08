@@ -1,7 +1,7 @@
 'use client';
 import React from 'react'
-import MainPanel from '@/components/main-panel';
-import Sidebar from '@/components/sidebar'
+import MainPanel from '@/components/MainPanel';
+import Sidebar from '@/components/Sidebar'
 import styles from '../../styles/pages/home-page.module.css'
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -17,6 +17,7 @@ import {
   selectCode,
   selectResponseText,
   selectEditorLanguage,
+  selectHasInputChanged,
   setMode,
   setModel,
   setCode,
@@ -36,6 +37,7 @@ function HomePage() {
   const code = useSelector(selectCode);
   const response = useSelector(selectResponseText);
   const editorLanguage = useSelector(selectEditorLanguage);
+  const hasInputChanged = useSelector(selectHasInputChanged);
 
   const handleNewChat = () => {
     dispatch(newChat());
@@ -88,6 +90,7 @@ function HomePage() {
         selectedMode={selectedMode}
         selectedModel={selectedModel}
         editorLanguage={editorLanguage}
+        hasInputChanged={hasInputChanged}
         code={code}
         response={response}
         onModeChange={handleModeChange}

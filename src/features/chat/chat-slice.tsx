@@ -19,15 +19,22 @@ interface ChatSession {
 
 type PendingClarify = { basePrompt: string; question: string } | null;
 
-// Per-mode state: each mode keeps its own code, response, and loading status
+// Per-mode state: each mode keeps its own code, response, loading status, and last request
+export interface LastRequest {
+    code: string;
+    mode: FeatureMode;
+    model: ModelId;
+}
+
 export interface ModeState {
     code: string;
     response: string;
     isLoading: boolean;
+    lastRequest: LastRequest | null;
 }
 
 function createDefaultModeState(): ModeState {
-    return { code: '', response: '', isLoading: false };
+    return { code: '', response: '', isLoading: false, lastRequest: null };
 }
 
 export type ModeStates = Record<FeatureMode, ModeState>;
@@ -143,8 +150,15 @@ const chatSlice = createSlice({
                 state.modeStates[state.selectedMode].response = '';
             })
             .addCase(analyzeCode.fulfilled, (state, action) => {
-                state.modeStates[state.selectedMode].isLoading = false;
-                state.modeStates[state.selectedMode].response = action.payload;
+                const mode = state.selectedMode;
+                state.modeStates[mode].isLoading = false;
+                state.modeStates[mode].response = action.payload;
+                // Stamp last successful request
+                state.modeStates[mode].lastRequest = {
+                    code: state.modeStates[mode].code,
+                    mode: mode,
+                    model: state.selectedModel,
+                };
             })
             .addCase(analyzeCode.rejected, (state, action) => {
                 state.modeStates[state.selectedMode].isLoading = false;
@@ -198,3 +212,20 @@ export const selectResponseText = (state: { chat: ChatState }) =>
 // Check if ANY mode is currently loading
 export const selectIsAnyModeLoading = (state: { chat: ChatState }): boolean =>
     Object.values(state.chat.modeStates).some(ms => ms.isLoading);
+
+// Check if the current input has changed since the last successful analysis
+export const selectHasInputChanged = (state: { chat: ChatState }): boolean => {
+    const mode = state.chat.selectedMode;
+    const modeState = state.chat.modeStates[mode];
+    const last = modeState.lastRequest;
+
+    // No previous request → input is "changed" (allow first analysis)
+    if (!last) return true;
+
+    // Compare current state against last successful request
+    return (
+        modeState.code !== last.code ||
+        mode !== last.mode ||
+        state.chat.selectedModel !== last.model
+    );
+};

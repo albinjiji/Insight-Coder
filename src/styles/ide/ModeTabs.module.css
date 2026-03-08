@@ -1,0 +1,54 @@
+.modeTabs {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 0 24px;
+    background: var(--toolbar-bg);
+    border-bottom: 1px solid var(--panel-border);
+    overflow-x: auto;
+}
+
+.modeTabs::-webkit-scrollbar {
+    display: none;
+}
+
+.modeTab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--tab-inactive);
+    font-size: 0.82rem;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    position: relative;
+}
+
+.modeTab:hover {
+    color: var(--foreground);
+    background: var(--surface-hover);
+}
+
+.modeTabActive {
+    color: var(--tab-active);
+    border-bottom-color: var(--accent-blue);
+}
+
+.modeTabActive .modeLabel {
+    font-weight: 600;
+}
+
+.modeIcon {
+    font-size: 0.9rem;
+    line-height: 1;
+}
+
+.modeLabel {
+    line-height: 1;
+}
