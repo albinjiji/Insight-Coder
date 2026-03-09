@@ -75,14 +75,7 @@ function HomePage() {
   return (
     <div className={styles.app}>
       <Sidebar
-        chats={chats.map(c => ({
-          id: c.id,
-          title: c.title || 'New Chat',
-        }))}
-        onSelectChat={handleSelectChat}
-        onNewChat={handleNewChat}
         activeChatId={currentChat?.id}
-        onDeleteChat={handleDeleteChat}
       />
       <MainPanel
         isLoading={isLoading}

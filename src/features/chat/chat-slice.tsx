@@ -17,6 +17,16 @@ interface ChatSession {
     createdAt: string;
 }
 
+export interface HistoryItem {
+    id: string;
+    mode: FeatureMode;
+    code: string;
+    response: string;
+    model: ModelId;
+    timestamp: string;
+    preview: string;
+}
+
 type PendingClarify = { basePrompt: string; question: string } | null;
 
 // Per-mode state: each mode keeps its own code, response, loading status, and last request
@@ -48,6 +58,7 @@ export interface ChatState {
     selectedModel: ModelId;
     editorLanguage: EditorLanguage;
     modeStates: ModeStates;
+    history: HistoryItem[];
 }
 
 const initialState: ChatState = {
@@ -66,6 +77,7 @@ const initialState: ChatState = {
         chat: createDefaultModeState(),
         repo: createDefaultModeState(),
     },
+    history: [],
 };
 
 const chatSlice = createSlice({
@@ -133,6 +145,21 @@ const chatSlice = createSlice({
         cancelModeLoading(state, action: PayloadAction<FeatureMode>) {
             state.modeStates[action.payload].isLoading = false;
         },
+        restoreSession(state, action: PayloadAction<HistoryItem>) {
+            const item = action.payload;
+            state.selectedMode = item.mode;
+            state.selectedModel = item.model;
+            state.modeStates[item.mode].code = item.code;
+            state.modeStates[item.mode].response = item.response;
+            state.modeStates[item.mode].lastRequest = {
+                code: item.code,
+                mode: item.mode,
+                model: item.model
+            };
+        },
+        newSession(state) {
+            state.modeStates[state.selectedMode] = createDefaultModeState();
+        },
     },
     extraReducers: (builder) => {
         builder
@@ -159,6 +186,17 @@ const chatSlice = createSlice({
                     mode: mode,
                     model: state.selectedModel,
                 };
+                // Add to history
+                const preview = state.modeStates[mode].code.trim().slice(0, 60);
+                state.history.unshift({
+                    id: uuidv4(),
+                    mode: mode,
+                    code: state.modeStates[mode].code,
+                    response: action.payload,
+                    model: state.selectedModel,
+                    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    preview: preview || 'Empty input',
+                });
             })
             .addCase(analyzeCode.rejected, (state, action) => {
                 state.modeStates[state.selectedMode].isLoading = false;
@@ -181,6 +219,8 @@ export const {
     setEditorLanguage,
     setModeLoading,
     cancelModeLoading,
+    restoreSession,
+    newSession,
 } = chatSlice.actions;
 
 export default chatSlice.reducer;
@@ -198,6 +238,7 @@ export const selectMode = (state: { chat: ChatState }) => state.chat.selectedMod
 export const selectModel = (state: { chat: ChatState }) => state.chat.selectedModel;
 export const selectEditorLanguage = (state: { chat: ChatState }) => state.chat.editorLanguage;
 export const selectModeStates = (state: { chat: ChatState }) => state.chat.modeStates;
+export const selectHistory = (state: { chat: ChatState }) => state.chat.history;
 
 // Derived selectors for the current mode
 export const selectCurrentModeState = (state: { chat: ChatState }): ModeState =>

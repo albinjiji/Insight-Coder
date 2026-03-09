@@ -63,13 +63,19 @@ export async function streamGemini(
 
       try {
         const parsed = JSON.parse(payload);
-        if (parsed.error) throw new Error(parsed.error);
+        if (parsed.error) {
+          throw new Error(parsed.error);
+        }
         if (parsed.text) {
           accumulated += parsed.text;
           onChunk(accumulated);
         }
-      } catch {
-        // skip malformed chunks
+      } catch (e: any) {
+        // If it's an explicit error from the server, propagate it
+        if (e.message && (e.message.includes('overloaded') || e.message.includes('503'))) {
+          throw e;
+        }
+        // otherwise skip malformed chunks
       }
     }
   }
@@ -80,13 +86,24 @@ export async function streamGemini(
 function isOverloadError(err: unknown): boolean {
   const data: any = (err as any)?.data ?? (err as any);
   const raw = data?.error ?? data?.message ?? data;
+
+  const check = (str: string) => {
+    const s = str.toUpperCase();
+    return s.includes('503') || s.includes('UNAVAILABLE') || s.includes('OVERLOADED') || s.includes('BUSY') || s.includes('LIMIT') || s.includes('429') || s.includes('RESOURCE_EXHAUSTED');
+  };
+
+  if (typeof raw === 'string') return check(raw);
+
   try {
-    const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
-    const code = parsed?.error?.code;
-    const status = parsed?.error?.status;
-    return code === 503 || status === 'UNAVAILABLE';
+    const parsed = typeof raw === 'object' ? raw : JSON.parse(raw);
+    const code = parsed?.error?.code ?? parsed?.code;
+    const status = parsed?.error?.status ?? parsed?.status;
+    const msg = parsed?.error?.message ?? parsed?.message ?? '';
+
+    if (code === 503 || code === 429 || status === 'UNAVAILABLE' || status === 'RESOURCE_EXHAUSTED') return true;
+    return check(msg);
   } catch {
-    return typeof raw === 'string' && /503|UNAVAILABLE/i.test(raw as string);
+    return false;
   }
 }
 
@@ -180,7 +197,7 @@ export async function generateAnswerWithFallback(prompt: string): Promise<string
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
     // requestWithRetries already tried 2.5 then 1.5
-    return 'The model is busy. Please try again in a moment.';
+    return 'The AI models are currently busy due to high demand. Please wait a few seconds and try again.';
   }
 }
 

@@ -133,7 +133,7 @@ ${code}
       const { text } = await requestWithRetries(fullPrompt, [modelName as Parameters<typeof postGemini>[1], 'gemini-1.5-flash']);
       return text || 'No response received.';
     } catch {
-      return rejectWithValue('All models are currently overloaded. Please try again in a moment.');
+      return rejectWithValue('The AI models are currently busy due to high demand. Please wait a few seconds and try again.');
     }
   }
 });

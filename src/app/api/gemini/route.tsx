@@ -14,9 +14,18 @@ function isOverloaded(e: any) {
   try {
     const code = e?.error?.code ?? e?.code;
     const status = e?.error?.status ?? e?.status;
-    if (code === 503 || status === 'UNAVAILABLE') return true;
-    const msg = typeof e === 'string' ? e : e?.message;
-    return typeof msg === 'string' && (msg.includes('UNAVAILABLE') || msg.includes('503'));
+    if (code === 503 || code === 429 || status === 'UNAVAILABLE' || status === 'RESOURCE_EXHAUSTED') return true;
+
+    const msg = typeof e === 'string' ? e : e?.message || '';
+    const errorMsg = e?.error?.message || '';
+    const combined = (msg + ' ' + errorMsg).toUpperCase();
+
+    return combined.includes('UNAVAILABLE') ||
+      combined.includes('503') ||
+      combined.includes('OVERLOADED') ||
+      combined.includes('BUSY') ||
+      combined.includes('LIMIT') ||
+      combined.includes('429');
   } catch {
     return false;
   }
@@ -135,7 +144,7 @@ async function handleStream(req: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: 'All models overloaded. Please try again shortly.' },
+      { error: 'All models overloaded (503). Please try again shortly.' },
       { status: 503 }
     );
   } catch (error: any) {

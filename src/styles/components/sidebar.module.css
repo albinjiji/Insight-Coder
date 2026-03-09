@@ -168,15 +168,19 @@
 
 .chatItem {
   display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 0.7rem 0.9rem;
-  border-radius: 0.5rem;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 0.8rem 0.9rem;
+  border-radius: 0.6rem;
   font-weight: 400;
   line-height: 1.4;
   color: var(--foreground);
   cursor: pointer;
-  height: 44px;
+  height: auto;
+  min-height: 54px;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
 }
 
 .title {
@@ -190,25 +194,60 @@
 
 .chatItem:hover {
   background: var(--chatItemHoverColor);
+  border-color: var(--borderColor);
 }
 
 .active {
   background: var(--chatItemHoverColor);
-  color: var(--foreground);
-  font-weight: 500;
+  border-color: var(--secondary);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
-.empty {
-  color: var(--foreground);
-  text-align: start;
-  margin-top: 2rem;
-  font-size: 0.9rem;
+.itemHeader {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.modeBadge {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ccc;
+}
+
+.timestamp {
+  font-size: 0.7rem;
+  color: #666;
+}
+
+.previewText {
+  font-size: 0.8rem;
+  color: #999;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
 }
 
 .deleteBtn {
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-left: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.chatItem:hover .deleteBtn {
+  opacity: 1;
+}
+
+.empty {
+  color: #555;
+  text-align: center;
+  margin-top: 3rem;
+  font-size: 0.85rem;
+  font-style: italic;
 }
