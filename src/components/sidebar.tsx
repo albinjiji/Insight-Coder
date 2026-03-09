@@ -54,7 +54,7 @@ function Sidebar({
       <div className={styles.header}>
         <div className={styles.logo} onClick={toggleMenu} title={menuOpen ? "Close sidebar" : "Open sidebar"}>
           <MenuIcon />
-          {menuOpen && <span>InsightCoder</span>}
+          {/* {menuOpen && <span>InsightCoder</span>} */}
         </div>
         <button
           className={styles.closeButton}

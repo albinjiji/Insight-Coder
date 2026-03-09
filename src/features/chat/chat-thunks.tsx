@@ -107,7 +107,7 @@ export const analyzeCode = createAsyncThunk<
 
   const systemPrompt = modePrompts[selectedMode];
   const modelConfig = modelOptions.find(m => m.id === selectedModel);
-  const modelName = modelConfig?.modelName || 'gemini-3-flash-preview';
+  const modelName = modelConfig?.modelName || 'gemini-2.0-flash';
 
   const fullPrompt = `${systemPrompt}
 
@@ -130,10 +130,10 @@ ${code}
   } catch {
     // Fallback to non-streaming if stream fails
     try {
-      const { text } = await requestWithRetries(fullPrompt, [modelName as Parameters<typeof postGemini>[1], 'gemini-1.5-flash']);
+      const { text } = await requestWithRetries(fullPrompt, [modelName as Parameters<typeof postGemini>[1], 'gemini-2.5-flash', 'gemini-3.1-flash-lite-preview']);
       return text || 'No response received.';
     } catch {
-      return rejectWithValue('The AI models are currently busy due to high demand. Please wait a few seconds and try again.');
+      return rejectWithValue('The Gemini models are currently busy or you have reached your free tier limit. Please wait a few seconds or check your terminal console for the specific error details.');
     }
   }
 });

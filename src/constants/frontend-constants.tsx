@@ -93,7 +93,7 @@ export type FeatureMode = typeof featureModes[number]['id'];
 
 // Available AI models
 export const modelOptions = [
-    { id: 'gemini', label: 'Gemini', modelName: 'gemini-3-flash-preview' },
+    { id: 'gemini', label: 'Gemini', modelName: 'gemini-2.5-flash' },
     // Future models:
     // { id: 'mistral', label: 'Mistral', modelName: 'mistral-large' },
     // { id: 'deepseek', label: 'DeepSeek', modelName: 'deepseek-coder' },

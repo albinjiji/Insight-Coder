@@ -6,8 +6,13 @@ const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY || '',
 });
 
-// Try primary → fallback
-const FALLBACKS = ['gemini-3-flash-preview', 'gemini-1.5-flash'] as const;
+// Try primary → fallback (verified IDs from project list)
+const FALLBACKS = [
+  'gemini-2.0-flash',
+  'gemini-2.5-flash',
+  'gemini-3.1-flash-lite-preview',
+  'gemini-flash-latest'
+] as const;
 const sleep = (ms: number) => new Promise(res => setTimeout(res, ms));
 
 function isOverloaded(e: any) {
@@ -55,7 +60,7 @@ export async function POST(req: NextRequest) {
 
     for (const model of models) {
       let attempt = 0;
-      while (attempt <= 2) {
+      while (attempt <= 1) {
         try {
           const response = await ai.models.generateContent({ model, contents: prompt });
           const out: any = response;
@@ -66,18 +71,26 @@ export async function POST(req: NextRequest) {
           return NextResponse.json({ text, modelUsed: model }, { status: 200 });
         } catch (err: any) {
           attempt++;
-          if (!isOverloaded(err) || attempt > 2) break;
+          console.error(`Attempt ${attempt} for model ${model} failed:`, err?.message || err);
+          if (!isOverloaded(err) || attempt > 1) break;
           const delay = Math.min(2000, 400 * 2 ** (attempt - 1));
           await sleep(delay);
         }
       }
     }
 
+    console.error('Gemini API Error: All models tried and failed/overloaded.');
     return NextResponse.json(
-      { error: 'All models overloaded. Please try again shortly.' },
+      { error: 'models_overloaded' },
       { status: 503 }
     );
   } catch (error: any) {
+    console.error('Internal Gemini Route Error:', error);
+
+    if (isOverloaded(error)) {
+      return NextResponse.json({ error: 'models_overloaded' }, { status: 503 });
+    }
+
     const message =
       error?.message || 'Unknown server error while contacting Gemini.';
     return NextResponse.json({ error: message }, { status: 500 });
@@ -99,55 +112,66 @@ async function handleStream(req: NextRequest) {
       ? [preferredModel, ...FALLBACKS.filter(m => m !== preferredModel)]
       : [...FALLBACKS];
 
-    // Try each model until one streams successfully
+    // Try each model
     for (const model of models) {
-      try {
-        const streamResponse = await ai.models.generateContentStream({
-          model,
-          contents: prompt,
-        });
+      let attempt = 0;
+      while (attempt <= 1) {
+        try {
+          const streamResponse = await ai.models.generateContentStream({
+            model,
+            contents: prompt,
+          });
 
-        const encoder = new TextEncoder();
-        const readable = new ReadableStream({
-          async start(controller) {
-            try {
-              for await (const chunk of streamResponse) {
-                const text = (chunk as any)?.text ?? '';
-                if (text) {
-                  // Send as Server-Sent Events format
-                  controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text, modelUsed: model })}\n\n`));
+          const encoder = new TextEncoder();
+          const readable = new ReadableStream({
+            async start(controller) {
+              try {
+                for await (const chunk of streamResponse) {
+                  const text = (chunk as any)?.text ?? '';
+                  if (text) {
+                    // Send as Server-Sent Events format
+                    controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text, modelUsed: model })}\n\n`));
+                  }
                 }
+                controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+                controller.close();
+              } catch (err) {
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: 'Stream interrupted' })}\n\n`));
+                controller.close();
+                console.error('Stream error:', err);
               }
-              controller.enqueue(encoder.encode('data: [DONE]\n\n'));
-              controller.close();
-            } catch (err) {
-              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: 'Stream interrupted' })}\n\n`));
-              controller.close();
-              console.error('Stream error:', err);
-            }
-          },
-        });
+            },
+          });
 
-        return new Response(readable, {
-          headers: {
-            'Content-Type': 'text/event-stream',
-            'Cache-Control': 'no-cache',
-            'Connection': 'keep-alive',
-          },
-        });
-      } catch (err: any) {
-        if (!isOverloaded(err)) {
-          return NextResponse.json({ error: err?.message || 'Stream failed' }, { status: 500 });
+          return new Response(readable, {
+            headers: {
+              'Content-Type': 'text/event-stream',
+              'Cache-Control': 'no-cache',
+              'Connection': 'keep-alive',
+            },
+          });
+        } catch (err: any) {
+          attempt++;
+          console.error(`Stream attempt ${attempt} for model ${model} failed:`, err?.message || err);
+          if (!isOverloaded(err) || attempt > 1) break;
+          const delay = Math.min(2000, 400 * 2 ** (attempt - 1));
+          await sleep(delay);
         }
-        // Try next model
       }
     }
 
+    console.error('Gemini Stream Error: All models tried and failed/overloaded.');
     return NextResponse.json(
-      { error: 'All models overloaded (503). Please try again shortly.' },
+      { error: 'models_overloaded' },
       { status: 503 }
     );
   } catch (error: any) {
+    console.error('Internal Gemini Stream Route Error:', error);
+
+    if (isOverloaded(error)) {
+      return NextResponse.json({ error: 'models_overloaded' }, { status: 503 });
+    }
+
     return NextResponse.json(
       { error: error?.message || 'Unknown server error.' },
       { status: 500 }

@@ -1,7 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export type ModelName = 'gemini-3-flash-preview' | 'gemini-1.5-flash';
+export type ModelName =
+  | 'gemini-2.0-flash'
+  | 'gemini-2.5-flash'
+  | 'gemini-3.1-flash-lite-preview'
+  | 'gemini-flash-latest'
+  | 'gemini-1.5-flash'; // kept for old code compatibility if needed
 
-const FALLBACKS: ModelName[] = ['gemini-3-flash-preview', 'gemini-1.5-flash'];
+const FALLBACKS: ModelName[] = [
+  'gemini-2.0-flash',
+  'gemini-2.5-flash',
+  'gemini-3.1-flash-lite-preview',
+  'gemini-flash-latest'
+];
 const NON_CODE_FALLBACK_MESSAGE =
   "This question doesn't seem related to coding or debugging. InsightCoder helps with programming, debugging, and code learning assistance.";
 
@@ -87,8 +97,10 @@ function isOverloadError(err: unknown): boolean {
   const data: any = (err as any)?.data ?? (err as any);
   const raw = data?.error ?? data?.message ?? data;
 
+  if (raw === 'models_overloaded') return true;
+
   const check = (str: string) => {
-    const s = str.toUpperCase();
+    const s = String(str).toUpperCase();
     return s.includes('503') || s.includes('UNAVAILABLE') || s.includes('OVERLOADED') || s.includes('BUSY') || s.includes('LIMIT') || s.includes('429') || s.includes('RESOURCE_EXHAUSTED');
   };
 
@@ -197,7 +209,7 @@ export async function generateAnswerWithFallback(prompt: string): Promise<string
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
     // requestWithRetries already tried 2.5 then 1.5
-    return 'The AI models are currently busy due to high demand. Please wait a few seconds and try again.';
+    return 'The Gemini models are currently busy or you have reached your free tier limit. Please wait a few seconds or check your console for details.';
   }
 }
 

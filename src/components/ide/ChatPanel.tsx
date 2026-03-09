@@ -11,7 +11,7 @@ interface ChatPanelProps {
 
 export default function ChatPanel({ chatInput, onChatInputChange }: ChatPanelProps) {
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        <div className={styles.panelWrapper}>
             <div className={styles.panelHeader}>
                 <div className={styles.panelDot} data-color="red" />
                 <div className={styles.panelDot} data-color="yellow" />
