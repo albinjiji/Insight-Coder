@@ -5,6 +5,52 @@ import { v4 as uuidv4 } from 'uuid';
 import { newChat, addMessage, setTitle, setPendingClarify, setResponse } from "./chat-slice";
 import { answerCodingPromptOrFallback, clarifyIfNeeded, correctPrompt, generateAnswerWithFallback, normalizeClarifyAnswerSimple, postGemini, requestWithRetries, streamGemini } from "@/lib/gemini-helper";
 import { modePrompts, modelOptions } from "@/constants/frontend-constants";
+import { AuthState } from "../auth/auth-slice";
+import {
+  loadSessions,
+  loadMessages,
+  createSession,
+  updateSession,
+  saveMessage,
+  checkSessionExists,
+} from "@/lib/supabase/chat-db";
+
+// ─── Load sessions from Supabase on mount ───────────────────────────
+
+export const loadUserSessions = createAsyncThunk<
+  { id: string; mode: string; model: string; preview: string; repoUrl: string; isRepoConnected: boolean; timestamp: string; messages: Message[] }[],
+  void,
+  { state: { chat: ChatState; auth: AuthState } }
+>('chat/loadUserSessions', async (_, { getState }) => {
+  const user = getState().auth.user;
+  if (!user) return [];
+
+  const sessions = await loadSessions(user.id);
+  
+  // Load messages for each session
+  const sessionsWithMessages = await Promise.all(
+    sessions.map(async (session) => {
+      const msgs = await loadMessages(session.id);
+      return {
+        id: session.id,
+        mode: session.mode,
+        model: session.model,
+        preview: session.preview || 'New Session',
+        repoUrl: session.repo_url || '',
+        isRepoConnected: session.is_repo_connected || false,
+        timestamp: new Date(session.updated_at || session.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        messages: msgs.map((m: { role: string; text: string }) => ({
+          role: m.role as 'user' | 'assistant',
+          text: m.text,
+        })),
+      };
+    }),
+  );
+
+  return sessionsWithMessages;
+});
+
+// ─── Send Message (chat mode) ───────────────────────────────────────
 
 export const sendMessage = createAsyncThunk<
   void,
@@ -91,11 +137,12 @@ export const sendMessage = createAsyncThunk<
   }
 });
 
-// New thunk: Analyze code with streaming response
+// ─── Analyze Code (IDE modes) with Supabase persistence ─────────────
+
 export const analyzeCode = createAsyncThunk<
   string,
   void,
-  { state: { chat: ChatState }; rejectValue: string }
+  { state: { chat: ChatState; auth: AuthState }; rejectValue: string }
 >('chat/analyzeCode', async (_, { getState, dispatch, rejectWithValue }) => {
   const state = getState().chat;
   const { selectedMode, selectedModel } = state;
@@ -133,6 +180,54 @@ ${code}
         dispatch(setResponse(accumulated));
       },
     );
+
+    // ──── Persist to Supabase after successful analysis ────
+    try {
+      const authState = getState().auth;
+      const userId = authState.user?.id;
+      if (userId) {
+        const chatState = getState().chat;
+        const activeId = chatState.activeHistoryId;
+        
+        // Determine session ID
+        let sessionId = activeId || uuidv4();
+
+        // Explicitly check if this session exists in Supabase
+        const exists = await checkSessionExists(sessionId);
+
+        if (exists) {
+          // Session exists — just update metadata
+          await updateSession(sessionId, {
+            preview: code.trim().slice(0, 60) || 'Active session',
+            repoUrl: chatState.modeStates[selectedMode].repoUrl,
+            isRepoConnected: chatState.modeStates[selectedMode].isRepoConnected,
+          });
+        } else {
+          // Session doesn't exist — create it first
+          await createSession(userId, {
+            id: sessionId,
+            mode: selectedMode,
+            model: selectedModel,
+            preview: code.trim().slice(0, 60) || 'New Session',
+            repoUrl: chatState.modeStates[selectedMode].repoUrl,
+            isRepoConnected: chatState.modeStates[selectedMode].isRepoConnected,
+          });
+          // Save all existing in-memory messages to the new DB session
+          for (const msg of chatState.modeStates[selectedMode].messages) {
+            await saveMessage(sessionId, msg.role, msg.text);
+          }
+        }
+
+        // Save the new user input and assistant response
+        await saveMessage(sessionId, 'user', code);
+        await saveMessage(sessionId, 'assistant', finalText);
+      }
+    } catch (dbError: unknown) {
+      // Don't fail the analysis if DB persistence fails
+      const errMsg = dbError instanceof Error ? dbError.message : JSON.stringify(dbError);
+      console.error('Failed to persist to Supabase:', errMsg);
+    }
+
     return finalText;
   } catch {
     // Fallback to non-streaming if stream fails

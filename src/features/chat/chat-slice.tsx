@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { v4 as uuidv4 } from 'uuid';
-import { sendMessage, analyzeCode } from "./chat-thunks";
+import { sendMessage, analyzeCode, loadUserSessions } from "./chat-thunks";
 import { EditorLanguage, FeatureMode, ModelId } from "@/constants/frontend-constants";
 
 type Role = 'user' | 'assistant';
@@ -72,6 +72,7 @@ export interface ChatState {
     editorLanguage: EditorLanguage;
     modeStates: ModeStates;
     history: HistoryItem[];
+    sessionsLoaded: boolean;
 }
 
 const initialState: ChatState = {
@@ -92,6 +93,7 @@ const initialState: ChatState = {
         repo: createDefaultModeState(),
     },
     history: [],
+    sessionsLoaded: false,
 };
 
 const chatSlice = createSlice({
@@ -295,6 +297,26 @@ const chatSlice = createSlice({
             .addCase(analyzeCode.rejected, (state, action) => {
                 state.modeStates[state.selectedMode].isLoading = false;
                 state.modeStates[state.selectedMode].response = action.payload as string || 'An error occurred. Please try again.';
+            })
+            // ── Load sessions from Supabase ──
+            .addCase(loadUserSessions.pending, (state) => {
+                state.sessionsLoaded = false;
+            })
+            .addCase(loadUserSessions.fulfilled, (state, action) => {
+                state.sessionsLoaded = true;
+                state.history = action.payload.map(s => ({
+                    id: s.id,
+                    mode: s.mode as import('@/constants/frontend-constants').FeatureMode,
+                    model: s.model as import('@/constants/frontend-constants').ModelId,
+                    messages: s.messages,
+                    timestamp: s.timestamp,
+                    preview: s.preview,
+                    repoUrl: s.repoUrl,
+                    isRepoConnected: s.isRepoConnected,
+                }));
+            })
+            .addCase(loadUserSessions.rejected, (state) => {
+                state.sessionsLoaded = true; // mark as loaded even on failure so we don't retry endlessly
             });
     },
 });

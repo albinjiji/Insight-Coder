@@ -1,5 +1,5 @@
 'use client';
-import React from 'react'
+import React, { useEffect } from 'react'
 import MainPanel from '@/components/MainPanel';
 import Sidebar from '@/components/Sidebar'
 import styles from '../../styles/pages/home-page.module.css'
@@ -25,8 +25,9 @@ import {
   setRepoUrl,
   setRepoConnected,
 } from '@/features/chat/chat-slice';
-import { analyzeCode } from '@/features/chat/chat-thunks';
+import { analyzeCode, loadUserSessions } from '@/features/chat/chat-thunks';
 import { EditorLanguage, FeatureMode, ModelId } from '@/constants/frontend-constants';
+import { selectIsAuthenticated } from '@/features/auth/auth-slice';
 
 function HomePage() {
   const dispatch = useDispatch();
@@ -42,6 +43,15 @@ function HomePage() {
   const messages = useSelector(selectMessages);
   const repoUrl = useSelector(selectRepoUrl);
   const isRepoConnected = useSelector(selectIsRepoConnected);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+
+  // Load persisted sessions from Supabase on mount
+  useEffect(() => {
+    if (isAuthenticated) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      dispatch(loadUserSessions() as any);
+    }
+  }, [isAuthenticated, dispatch]);
 
 
   const handleModeChange = (mode: FeatureMode) => {
