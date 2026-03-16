@@ -32,10 +32,14 @@ interface MainPanelProps {
   messages: Message[];
   code: string;
   response: string;
+  repoUrl: string;
+  isRepoConnected: boolean;
   onModeChange: (mode: FeatureMode) => void;
   onModelChange: (model: ModelId) => void;
   onLanguageChange: (lang: EditorLanguage) => void;
   onCodeChange: (code: string) => void;
+  onRepoUrlChange: (url: string) => void;
+  onRepoConnectedChange: (connected: boolean) => void;
   onAddMessageToHistory: (mode: FeatureMode, text: string) => void;
   onAnalyze: () => void;
 }
@@ -53,10 +57,14 @@ export default function MainPanel({
   messages,
   code,
   response,
+  repoUrl,
+  isRepoConnected,
   onModeChange,
   onModelChange,
   onLanguageChange,
   onCodeChange,
+  onRepoUrlChange,
+  onRepoConnectedChange,
   onAddMessageToHistory,
   onAnalyze,
 }: MainPanelProps) {
@@ -64,8 +72,9 @@ export default function MainPanel({
   const [mounted, setMounted] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [MonacoEditor, setMonacoEditor] = useState<any>(null);
+  // IDE state
   const [chatInput, setChatInput] = useState('');
-  const [repoUrl, setRepoUrl] = useState('');
+  const [repoChatInput, setRepoChatInput] = useState('');
   const [lastSentMessage, setLastSentMessage] = useState('');
 
   // Confirmation dialog state
@@ -123,37 +132,53 @@ export default function MainPanel({
   const isEditorMode = editorModes.includes(selectedMode);
   const isChatMode = selectedMode === 'chat';
   const isRepoMode = selectedMode === 'repo';
-  const buttonConfig = modeButtonLabels[selectedMode];
+  
+  // Dynamic button config for Repo Mode
+  const buttonConfig = isRepoMode && isRepoConnected 
+    ? { action: 'Send Message', loading: 'Thinking...', icon: '💬' }
+    : modeButtonLabels[selectedMode];
 
   // Determine if the action button should be disabled
   const isInputEmpty = isEditorMode ? !code.trim() :
     isChatMode ? !chatInput.trim() :
-      isRepoMode ? !repoUrl.trim() : true;
+      isRepoMode ? (isRepoConnected ? !repoChatInput.trim() : !repoUrl.trim()) : true;
 
   const isDuplicateMessage = isChatMode && chatInput.trim() === lastSentMessage.trim();
 
   const isActionDisabled = isLoading || isInputEmpty || isDuplicateMessage || (
-    !isChatMode && !hasInputChanged
+    !isChatMode && !isRepoMode && !hasInputChanged
   );
 
   // Handle action for all modes
-  const handleAction = () => {
+  const handleAction = (customPrompt?: string) => {
     if (isChatMode) {
       if (isDuplicateMessage) return;
-      // In chat mode, we use chatInput
       setLastSentMessage(chatInput);
-      // Synchronously push to history for instant UI feedback
       onAddMessageToHistory(selectedMode, chatInput);
       onCodeChange(chatInput);
       setChatInput('');
     } else if (isRepoMode) {
-      // In repo mode, we use repoUrl
-      onCodeChange(repoUrl);
+      if (!isRepoConnected && !customPrompt) {
+        // Initial connection via ActionBar or Panel "Connect"
+        onRepoConnectedChange(true);
+        onAddMessageToHistory(selectedMode, `Connected to repository: ${repoUrl}. How can I help you onboard?`);
+        return; // Important: Don't trigger AI analysis on just "Connect"
+      } else {
+        // Superpower card or Repo Chat input
+        const task = customPrompt || repoChatInput;
+        if (task) {
+          onAddMessageToHistory(selectedMode, task);
+          // Prepend repo URL for context in the 'code' state which analyzeCode uses
+          onCodeChange(`Context Repository: ${repoUrl}\n\nTask: ${task}`);
+          setRepoChatInput('');
+        } else {
+          // Re-analyze connected repo (fallback for ActionBar)
+          onCodeChange(`Summarize repository: ${repoUrl}`);
+        }
+      }
     } else if (isEditorMode) {
-      // For analytical modes (Explain, Review, ect.), push code to history for visual continuity
       onAddMessageToHistory(selectedMode, code);
     }
-    // Perform analysis
     onAnalyze();
   };
 
@@ -184,8 +209,13 @@ export default function MainPanel({
       return (
         <RepoPanel
           repoUrl={repoUrl}
-          onRepoUrlChange={setRepoUrl}
+          onRepoUrlChange={onRepoUrlChange}
+          isRepoConnected={isRepoConnected}
+          onRepoConnectedChange={onRepoConnectedChange}
+          repoChatInput={repoChatInput}
+          onRepoChatInputChange={setRepoChatInput}
           onAction={handleAction}
+          isLoading={isLoading}
           isDisabled={isActionDisabled}
         />
       );

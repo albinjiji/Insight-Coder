@@ -78,7 +78,11 @@
 .assistantBubble {
   color: var(--foreground);
   border-top-left-radius: 0.25rem;
-  width: 90%;
+  width: 100%;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
 }
 
 .assistantInlineCode {

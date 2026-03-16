@@ -20,6 +20,10 @@ import {
   setCode,
   setEditorLanguage,
   addMessageToHistory,
+  selectRepoUrl,
+  selectIsRepoConnected,
+  setRepoUrl,
+  setRepoConnected,
 } from '@/features/chat/chat-slice';
 import { analyzeCode } from '@/features/chat/chat-thunks';
 import { EditorLanguage, FeatureMode, ModelId } from '@/constants/frontend-constants';
@@ -36,6 +40,8 @@ function HomePage() {
   const editorLanguage = useSelector(selectEditorLanguage);
   const hasInputChanged = useSelector(selectHasInputChanged);
   const messages = useSelector(selectMessages);
+  const repoUrl = useSelector(selectRepoUrl);
+  const isRepoConnected = useSelector(selectIsRepoConnected);
 
 
   const handleModeChange = (mode: FeatureMode) => {
@@ -52,6 +58,14 @@ function HomePage() {
 
   const handleLanguageChange = (lang: EditorLanguage) => {
     dispatch(setEditorLanguage(lang));
+  };
+
+  const handleRepoUrlChange = (url: string) => {
+    dispatch(setRepoUrl(url));
+  };
+
+  const handleRepoConnectedChange = (connected: boolean) => {
+    dispatch(setRepoConnected(connected));
   };
 
   const handleAnalyze = () => {
@@ -74,10 +88,14 @@ function HomePage() {
         messages={messages}
         code={code}
         response={response}
+        repoUrl={repoUrl}
+        isRepoConnected={isRepoConnected}
         onModeChange={handleModeChange}
         onModelChange={handleModelChange}
         onLanguageChange={handleLanguageChange}
         onCodeChange={handleCodeChange}
+        onRepoUrlChange={handleRepoUrlChange}
+        onRepoConnectedChange={handleRepoConnectedChange}
         onAddMessageToHistory={(mode, text) => dispatch(addMessageToHistory({ mode, text }))}
         onAnalyze={handleAnalyze}
       />

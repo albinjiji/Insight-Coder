@@ -62,6 +62,127 @@
     color: var(--tab-inactive);
 }
 
+.dashboard {
+    flex: 1;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    height: 100%;
+    overflow-x: hidden;
+}
+
+.dashboardHeader {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.dashboardHeader h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--foreground);
+    margin: 0;
+}
+
+.dashboardHeader p {
+    font-size: 0.88rem;
+    color: var(--tab-inactive);
+    margin: 0;
+}
+
+.superpowerGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-align: left;
+}
+
+.card:hover {
+    transform: translateY(-4px) scale(1.02);
+    border-color: var(--accent-blue);
+    background: rgba(59, 130, 246, 0.05);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.cardIcon {
+    font-size: 1.5rem;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 8px;
+}
+
+.cardTitle {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--foreground);
+}
+
+.cardDescription {
+    font-size: 0.82rem;
+    color: var(--tab-inactive);
+    line-height: 1.4;
+}
+
+.repoChatSection {
+    margin-top: auto;
+    border-top: 1px solid var(--panel-border-subtle);
+    padding-top: 24px;
+    padding-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.repoChatLabel {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--tab-inactive);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.repoChatInputWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.repoChatInput {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--panel-bg-elevated);
+    color: var(--foreground);
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    font-size: 0.88rem;
+    transition: border-color 0.2s ease;
+}
+
+.repoChatInput:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+}
+
 .panelHeader {
     display: flex;
     align-items: center;

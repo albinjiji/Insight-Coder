@@ -1,7 +1,8 @@
 .responsePanel {
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: hidden;
     background: var(--response-bg);
     height: 100%;
 }
@@ -9,6 +10,7 @@
 .responseContainer {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     padding: 20px;
     min-height: 0;
 }

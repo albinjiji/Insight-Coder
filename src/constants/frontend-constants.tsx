@@ -44,7 +44,7 @@ export const modeButtonLabels: Record<string, { action: string; loading: string;
     debug: { action: 'Debug Code', loading: 'Debugging...', icon: '🐛' },
     tests: { action: 'Generate Tests', loading: 'Generating...', icon: '🧪' },
     chat: { action: 'Send Message', loading: 'Thinking...', icon: '💬' },
-    repo: { action: 'Analyze Repo', loading: 'Analyzing...', icon: '📁' },
+    repo: { action: 'Connect Repo', loading: 'Connecting...', icon: '🤝' },
 };
 
 export const responseMessagesValues = {
@@ -86,7 +86,7 @@ export const featureModes = [
     { id: 'debug', label: 'Debug', icon: '🐛' },
     { id: 'tests', label: 'Tests', icon: '🧪' },
     { id: 'chat', label: 'Chat', icon: '💬' },
-    { id: 'repo', label: 'Repo', icon: '📁' },
+    { id: 'repo', label: 'AI Teammate', icon: '🤝' },
 ] as const;
 
 export type FeatureMode = typeof featureModes[number]['id'];
@@ -133,9 +133,6 @@ export const modePrompts: Record<FeatureMode, string> = {
 - Provide code examples where helpful
 - Use markdown formatting`,
 
-    repo: `You are InsightCoder analyzing a repository/module. For the following code:
-- Describe the overall architecture and structure
-- Identify the main components and their relationships
-- Suggest organizational improvements
-- Note any dependency concerns`,
+    repo: `You are InsightCoder, a powerful AI teammate for onboarding into complex enterprise codebases. Your goal is to help a new developer understand this repository quickly and efficiently. 
+Be professional, encouraging, and deeply technical where needed. Answer the user's questions or perform the requested tasks based on the repository content provided below.`,
 };

@@ -24,6 +24,8 @@ export interface HistoryItem {
     model: ModelId;
     timestamp: string;
     preview: string;
+    repoUrl?: string;
+    isRepoConnected?: boolean;
 }
 
 type PendingClarify = { basePrompt: string; question: string } | null;
@@ -41,10 +43,20 @@ export interface ModeState {
     messages: Message[];
     isLoading: boolean;
     lastRequest: LastRequest | null;
+    repoUrl: string;
+    isRepoConnected: boolean;
 }
 
 function createDefaultModeState(): ModeState {
-    return { code: '', response: '', messages: [], isLoading: false, lastRequest: null };
+    return { 
+        code: '', 
+        response: '', 
+        messages: [], 
+        isLoading: false, 
+        lastRequest: null,
+        repoUrl: '',
+        isRepoConnected: false
+    };
 }
 
 export type ModeStates = Record<FeatureMode, ModeState>;
@@ -133,6 +145,7 @@ const chatSlice = createSlice({
         },
         setEditorLanguage(state, action: PayloadAction<EditorLanguage>) {
             state.editorLanguage = action.payload;
+            state.modeStates[state.selectedMode].code = '';
         },
         // Per-mode state reducers — target the CURRENT selected mode
         setCode(state, action: PayloadAction<string>) {
@@ -169,10 +182,19 @@ const chatSlice = createSlice({
                 mode: item.mode,
                 model: item.model
             };
+
+            state.modeStates[item.mode].repoUrl = item.repoUrl || '';
+            state.modeStates[item.mode].isRepoConnected = item.isRepoConnected || false;
         },
         newSession(state) {
             state.modeStates[state.selectedMode] = createDefaultModeState();
             state.activeHistoryId = null;
+        },
+        setRepoUrl(state, action: PayloadAction<string>) {
+            state.modeStates[state.selectedMode].repoUrl = action.payload;
+        },
+        setRepoConnected(state, action: PayloadAction<boolean>) {
+            state.modeStates[state.selectedMode].isRepoConnected = action.payload;
         },
         addMessageToHistory(state, action: PayloadAction<{ mode: FeatureMode; text: string }>) {
             const { mode, text } = action.payload;
@@ -187,15 +209,20 @@ const chatSlice = createSlice({
                     id: newId,
                     mode: mode,
                     messages: [userMsg],
-                    model: state.selectedModel, // Add missing model
+                    model: state.selectedModel,
                     timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                     preview: text.trim().slice(0, 60) || 'New Analysis',
+                    repoUrl: state.modeStates[mode].repoUrl,
+                    isRepoConnected: state.modeStates[mode].isRepoConnected,
                 });
             } else {
                 // Update existing history item
                 const existing = state.history.find(h => h.id === state.activeHistoryId);
                 if (existing) {
                     existing.messages.push(userMsg);
+                    // Also update repo state in case it changed
+                    existing.repoUrl = state.modeStates[mode].repoUrl;
+                    existing.isRepoConnected = state.modeStates[mode].isRepoConnected;
                 }
             }
         }
@@ -240,6 +267,8 @@ const chatSlice = createSlice({
                     if (existing) {
                         existing.messages = [...state.modeStates[mode].messages];
                         existing.timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        existing.repoUrl = state.modeStates[mode].repoUrl;
+                        existing.isRepoConnected = state.modeStates[mode].isRepoConnected;
                         // Update preview if it was "Empty input" or similar
                         if (existing.preview === 'Empty input' || existing.preview === 'New Chat') {
                             existing.preview = state.modeStates[mode].code.trim().slice(0, 60) || 'Active session';
@@ -259,6 +288,8 @@ const chatSlice = createSlice({
                     model: state.selectedModel,
                     timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                     preview: preview || 'Empty input',
+                    repoUrl: state.modeStates[mode].repoUrl,
+                    isRepoConnected: state.modeStates[mode].isRepoConnected
                 });
             })
             .addCase(analyzeCode.rejected, (state, action) => {
@@ -285,6 +316,8 @@ export const {
     restoreSession,
     newSession,
     addMessageToHistory,
+    setRepoUrl,
+    setRepoConnected,
 } = chatSlice.actions;
 
 export default chatSlice.reducer;
@@ -315,6 +348,11 @@ export const selectMessages = (state: { chat: ChatState }) =>
     state.chat.modeStates[state.chat.selectedMode].messages;
 export const selectResponseText = (state: { chat: ChatState }) =>
     state.chat.modeStates[state.chat.selectedMode].response;
+
+export const selectRepoUrl = (state: { chat: ChatState }) =>
+    state.chat.modeStates[state.chat.selectedMode].repoUrl;
+export const selectIsRepoConnected = (state: { chat: ChatState }) =>
+    state.chat.modeStates[state.chat.selectedMode].isRepoConnected;
 
 // Check if ANY mode is currently loading
 export const selectIsAnyModeLoading = (state: { chat: ChatState }): boolean =>
