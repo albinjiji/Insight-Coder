@@ -132,9 +132,9 @@ export default function MainPanel({
   const isEditorMode = editorModes.includes(selectedMode);
   const isChatMode = selectedMode === 'chat';
   const isRepoMode = selectedMode === 'repo';
-  
+
   // Dynamic button config for Repo Mode
-  const buttonConfig = isRepoMode && isRepoConnected 
+  const buttonConfig = isRepoMode && isRepoConnected
     ? { action: 'Send Message', loading: 'Thinking...', icon: '💬' }
     : modeButtonLabels[selectedMode];
 
@@ -150,7 +150,7 @@ export default function MainPanel({
   );
 
   // Handle action for all modes
-  const handleAction = (customPrompt?: string) => {
+  const handleAction = (customPrompt?: string, displayText?: string) => {
     if (isChatMode) {
       if (isDuplicateMessage) return;
       setLastSentMessage(chatInput);
@@ -166,10 +166,13 @@ export default function MainPanel({
       } else {
         // Superpower card or Repo Chat input
         const task = customPrompt || repoChatInput;
+        const display = displayText || task;
         if (task) {
-          onAddMessageToHistory(selectedMode, task);
+          onAddMessageToHistory(selectedMode, display);
           // Prepend repo URL for context in the 'code' state which analyzeCode uses
-          onCodeChange(`Context Repository: ${repoUrl}\n\nTask: ${task}`);
+          // Optimization: If it's a superpower, the prompt already contains instructions
+          const finalPrompt = customPrompt ? `REPOSITORY: ${repoUrl}\n${task}` : `REPOSITORY: ${repoUrl}\nUSER REQUEST: ${task}`;
+          onCodeChange(finalPrompt);
           setRepoChatInput('');
         } else {
           // Re-analyze connected repo (fallback for ActionBar)

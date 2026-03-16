@@ -109,9 +109,16 @@ export const analyzeCode = createAsyncThunk<
   const modelConfig = modelOptions.find(m => m.id === selectedModel);
   const modelName = modelConfig?.modelName || 'gemini-2.0-flash';
 
-  const fullPrompt = `${systemPrompt}
+  const messages = state.modeStates[selectedMode].messages;
+  
+  // Format history for context (exclude the very last user message as it's the "Current Task")
+  const historyContext = messages.length > 1
+    ? `\nCONVERSATION HISTORY:\n${messages.slice(0, -1).map(m => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.text}`).join('\n')}\n`
+    : '';
 
-Code:
+  const fullPrompt = `${systemPrompt}
+${historyContext}
+CURRENT TASK/CODE (USE THIS TO ANSWER):
 \`\`\`
 ${code}
 \`\`\``;

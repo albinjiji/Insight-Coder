@@ -9,53 +9,131 @@ interface RepoPanelProps {
     onRepoConnectedChange: (value: boolean) => void;
     repoChatInput: string;
     onRepoChatInputChange: (value: string) => void;
-    onAction: (customAction?: string) => void;
+    onAction: (prompt?: string, displayText?: string) => void;
     isLoading: boolean;
     isDisabled: boolean;
 }
 
 const SUPERPOWERS = [
-    { 
-        id: 'arch', 
-        label: 'Architecture Overview', 
-        icon: '🏗️', 
+    {
+        id: 'arch',
+        label: 'Architecture Overview',
+        icon: '🏗️',
         description: 'Understand the high-level system design.',
-        prompt: 'Provide a clear, high-level architecture overview of this repository. Explain the project structure, main directories, and the role of each major module.'
+        prompt: `Analyze this repository and provide a high-level architecture overview.
+
+        Output format:
+        1. Project purpose
+        2. Main directories and their responsibilities
+        3. Core modules/components and how they interact
+        4. Entry points (app start, API layer, CLI, workers, etc.)
+        5. Architectural patterns used
+        6. Notable design decisions or boundaries
+
+        Requirements:
+        - Reference specific files/directories for each claim
+        - Distinguish confirmed facts from likely assumptions
+        - Keep the explanation practical for a developer reading this repo for the first time`
     },
-    { 
-        id: 'flow', 
-        label: 'Code Flow Tracing', 
-        icon: '🌊', 
+    {
+        id: 'flow',
+        label: 'Code Flow Tracing',
+        icon: '🌊',
         description: 'Trace how data moves through the repo.',
-        prompt: 'Trace the key data flow and logic paths in this repository. Explain how a typical request or state change moves through the system.'
+        prompt: `Trace the main code flows in this repository.
+
+        Explain:
+        1. How a typical request, command, or user action enters the system
+        2. Which files/modules process it step by step
+        3. How state, data, or control moves through the code
+        4. Where validation, business logic, and persistence happen
+        5. Where errors are handled
+        6. Important branching points or side effects
+
+        Requirements:
+        - Use a step-by-step flow
+        - Reference specific files/functions where possible
+        - Mention alternative flows if the repo supports more than one execution path`
     },
-    { 
-        id: 'features', 
-        label: 'Feature Discovery', 
-        icon: '🔍', 
+    {
+        id: 'features',
+        label: 'Feature Discovery',
+        icon: '🔍',
         description: 'Locate where specific features live.',
-        prompt: 'Identify the main features of this repository and point to the specific files or directories where they are implemented.'
+        prompt: `Identify the major features implemented in this repository.
+
+        For each feature, provide:
+        1. Feature name
+        2. What it does
+        3. Main files/directories involved
+        4. Key entry points or functions
+        5. Any related tests, configs, or docs
+
+        Requirements:
+        - Group related files together
+        - Avoid guessing features that are not clearly supported by the code
+        - Prefer implementation evidence over high-level assumptions`
     },
-    { 
-        id: 'deps', 
-        label: 'Dependency Map', 
-        icon: '🕸️', 
+    {
+        id: 'deps',
+        label: 'Dependency Map',
+        icon: '🕸️',
         description: 'Visualize module interactions.',
-        prompt: 'Analyze the technical dependencies used in this project. Explain their roles and how the internal modules are coupled.'
+        prompt: `Analyze the dependencies and module relationships in this project.
+
+        Explain:
+        1. External libraries/frameworks used and why
+        2. Internal module boundaries and coupling
+        3. Which modules depend heavily on others
+        4. Potential tight coupling, circular dependency risk, or architectural hotspots
+        5. Build/runtime/tooling dependencies
+
+        Requirements:
+        - Separate external dependencies from internal module relationships
+        - Highlight important dependency-heavy files or areas
+        - Focus on maintainability and developer understanding`
     },
-    { 
-        id: 'style', 
-        label: 'Coding Conventions', 
-        icon: '📜', 
+    {
+        id: 'style',
+        label: 'Coding Conventions',
+        icon: '📜',
         description: 'Learn the project style and rules.',
-        prompt: 'Identify and surface the important coding conventions, patterns, and style rules followed in this repository.'
+        prompt: `Identify the coding conventions and engineering patterns followed in this repository.
+
+        Look for:
+        1. Naming conventions
+        2. File/folder organization patterns
+        3. Error handling style
+        4. Testing style
+        5. State management or data handling conventions
+        6. Reusable patterns, abstractions, or architectural rules
+        7. Linting/formatting/config-enforced rules if present
+
+        Requirements:
+        - Reference actual examples from the codebase
+        - Distinguish explicit rules from inferred conventions
+        - Summarize what a new contributor should follow`
     },
-    { 
-        id: 'onboard', 
-        label: 'Onboarding Guide', 
-        icon: '🚩', 
+    {
+        id: 'onboard',
+        label: 'Onboarding Guide',
+        icon: '🚩',
         description: 'Personalized "Where to start" plan.',
-        prompt: 'Create a "Where to Start" guide for a new developer onboarding into this codebase. Suggest a logical order to explore the files and a simple task to get started.'
+        prompt: `Create a practical onboarding guide for a new developer joining this codebase.
+
+        Include:
+        1. What this project appears to do
+        2. What files/directories to read first
+        3. A recommended order for exploring the codebase
+        4. Key concepts the developer must understand early
+        5. Where the main business logic lives
+        6. Where tests, configs, and docs are located
+        7. A safe beginner task or small change to start with
+
+        Requirements:
+        - Make it actionable and beginner-friendly
+        - Reference specific files/directories
+        - Mention unknowns or unclear parts of the repo when relevant`
     },
 ];
 
@@ -88,8 +166,8 @@ export default function RepoPanel({
         }
     };
 
-    const handleSuperpower = (prompt: string) => {
-        onAction(prompt);
+    const handleSuperpower = (label: string, prompt: string) => {
+        onAction(prompt, label);
     };
 
     return (
@@ -141,7 +219,7 @@ export default function RepoPanel({
                             <button
                                 key={power.id}
                                 className={styles.card}
-                                onClick={() => handleSuperpower(power.prompt)}
+                                onClick={() => handleSuperpower(power.label, power.prompt)}
                                 disabled={isLoading}
                             >
                                 <div className={styles.cardIcon}>{power.icon}</div>
