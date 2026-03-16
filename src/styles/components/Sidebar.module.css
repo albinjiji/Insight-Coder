@@ -173,8 +173,10 @@
   gap: 0.4rem;
   scroll-behavior: smooth;
   overscroll-behavior: contain;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
@@ -214,7 +216,7 @@
   color: var(--foreground);
   cursor: pointer;
   height: auto;
-  min-height: 64px;
+  min-height: 66px;
   border: 1px solid transparent;
   transition: all 0.2s ease;
 }
@@ -241,10 +243,30 @@
 
 .itemHeader {
   display: flex;
-  width: 100%;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 4px;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.deleteBtn {
+  background: none;
+  border: none;
+  color: var(--foreground);
+  opacity: 0.3;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+}
+
+.deleteBtn:hover {
+  opacity: 1;
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.1);
 }
 
 .modeBadge {
@@ -286,4 +308,39 @@
   margin-top: 3rem;
   font-size: 0.85rem;
   font-style: italic;
+}
+
+.profileInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.emailLabel {
+  font-size: 0.8rem;
+  opacity: 0.7;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.signOutButton {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ff6b6b;
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  transition: all 0.2s ease;
+  width: fit-content;
+}
+
+.signOutButton:hover {
+  background: rgba(255, 107, 107, 0.1);
+  border-color: #ff6b6b;
 }

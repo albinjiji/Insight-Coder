@@ -5,12 +5,14 @@ import Link from 'next/link';
 import { authPageValues } from '@/constants/frontend-constants';
 import { LightBulbIcon } from '@/components/Icons';
 import styles from '@/styles/pages/signin.module.css';
+import { createClient } from '@/lib/supabase/client';
 
 const SignInPage = () => {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [serverError, setServerError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const validate = (): boolean => {
@@ -37,7 +39,20 @@ const SignInPage = () => {
     if (!validate()) return;
 
     setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1200));
+    setServerError('');
+
+    const supabase = createClient();
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      setServerError(error.message);
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(false);
     router.push('/home-page');
   };
@@ -57,6 +72,12 @@ const SignInPage = () => {
           <h1 className={styles.title}>{authPageValues.signInTitle}</h1>
           <p className={styles.subtitle}>{authPageValues.signInSubtitle}</p>
 
+          {serverError && (
+            <p className={styles.errorText} style={{ textAlign: 'center', marginBottom: '1rem' }}>
+              <span>⚠</span> {serverError}
+            </p>
+          )}
+
           <form onSubmit={handleSubmit} className={styles.form}>
             {/* Email */}
             <div className={styles.fieldGroup}>
@@ -65,7 +86,7 @@ const SignInPage = () => {
                 id="signin-email"
                 type="email"
                 value={email}
-                onChange={(e) => { setEmail(e.target.value); setErrors((prev) => ({ ...prev, email: undefined })); }}
+                onChange={(e) => { setEmail(e.target.value); setErrors((prev) => ({ ...prev, email: undefined })); setServerError(''); }}
                 placeholder={authPageValues.emailPlaceholder}
                 className={`${styles.input} ${errors.email ? styles.inputError : ''}`}
               />
@@ -81,7 +102,7 @@ const SignInPage = () => {
                 id="signin-password"
                 type="password"
                 value={password}
-                onChange={(e) => { setPassword(e.target.value); setErrors((prev) => ({ ...prev, password: undefined })); }}
+                onChange={(e) => { setPassword(e.target.value); setErrors((prev) => ({ ...prev, password: undefined })); setServerError(''); }}
                 placeholder={authPageValues.passwordPlaceholder}
                 className={`${styles.input} ${errors.password ? styles.inputError : ''}`}
               />

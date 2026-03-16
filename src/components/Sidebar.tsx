@@ -1,6 +1,7 @@
 'use client';
 import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { useRouter } from 'next/navigation'
 import styles from '../styles/components/Sidebar.module.css'
 import { CloseIcon, DeleteIcon, MenuIcon, PlusIcon, ProfileIcon } from './Icons'
 import { sidebarValues } from '@/constants/frontend-constants'
@@ -9,11 +10,12 @@ import {
   restoreSession,
   newSession,
   HistoryItem,
-  // selectCurrentChatId // We'll handle "active" state by checking if current workspace matches a history item or just highlight last clicked
 } from '@/features/chat/chat-slice'
+import { deleteChatSession } from '@/features/chat/chat-thunks'
+import { selectAuthUser } from '@/features/auth/auth-slice'
+import { createClient } from '@/lib/supabase/client'
 
 interface SidebarProps {
-  // Traditional chat props kept for compatibility if needed, but we'll focus on HistoryItem
   activeChatId?: string;
   chats?: { id: string; title: string }[];
   onDeleteChat?: (id: string) => void;
@@ -22,10 +24,12 @@ interface SidebarProps {
 }
 
 function Sidebar({
-  activeChatId, // This might be used for chat mode specifically
+  activeChatId,
 }: SidebarProps) {
   const dispatch = useDispatch();
+  const router = useRouter();
   const history = useSelector(selectHistory);
+  const user = useSelector(selectAuthUser);
   const [menuOpen, setMenuOpen] = useState(true);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
 
@@ -45,8 +49,14 @@ function Sidebar({
 
   const handleDeleteHistory = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    // For now, we don't have a deleteHistory action, but we could add one.
-    // Let's just focus on restoration as per requirements.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    dispatch(deleteChatSession(id) as any);
+  };
+
+  const handleSignOut = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push('/signin');
   };
 
   return (
@@ -54,7 +64,6 @@ function Sidebar({
       <div className={styles.header}>
         <div className={styles.logo} onClick={toggleMenu} title={menuOpen ? "Close sidebar" : "Open sidebar"}>
           <MenuIcon />
-          {/* {menuOpen && <span>InsightCoder</span>} */}
         </div>
         <button
           className={styles.closeButton}
@@ -86,6 +95,13 @@ function Sidebar({
                     <div className={styles.itemHeader}>
                       <span className={styles.modeBadge}>{item.mode}</span>
                       <span className={styles.timestamp}>{item.timestamp}</span>
+                      <button 
+                        className={styles.deleteBtn}
+                        onClick={(e) => handleDeleteHistory(e, item.id)}
+                        title="Delete session"
+                      >
+                        <DeleteIcon />
+                      </button>
                     </div>
                     <div className={styles.previewText}>
                       {item.preview}
@@ -101,7 +117,20 @@ function Sidebar({
       <div className={styles.bottom}>
         <div className={styles.profile} title={sidebarValues.myProfile}>
           <ProfileIcon />
-          {menuOpen && <span className={styles.label}>{sidebarValues.myProfile}</span>}
+          {menuOpen && (
+            <div className={styles.profileInfo}>
+              <span className={`${styles.label} ${styles.emailLabel}`}>
+                {user?.email || 'Not signed in'}
+              </span>
+              <button
+                onClick={handleSignOut}
+                className={styles.signOutButton}
+                title="Sign out of InsightCoder"
+              >
+                Sign Out
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
