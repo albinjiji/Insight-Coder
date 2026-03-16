@@ -14,13 +14,13 @@ import ResponsePanel from './ide/ResponsePanel';
 import ActionBar from './ide/ActionBar';
 import ConfirmDialog from './ConfirmDialog';
 
-// Constants & Types
 import {
   modeButtonLabels,
   FeatureMode,
   ModelId,
   EditorLanguage,
 } from '@/constants/frontend-constants';
+import { Message } from '@/features/chat/chat-slice';
 
 interface MainPanelProps {
   isLoading: boolean;
@@ -29,12 +29,14 @@ interface MainPanelProps {
   selectedModel: ModelId;
   editorLanguage: EditorLanguage;
   hasInputChanged: boolean;
+  messages: Message[];
   code: string;
   response: string;
   onModeChange: (mode: FeatureMode) => void;
   onModelChange: (model: ModelId) => void;
   onLanguageChange: (lang: EditorLanguage) => void;
   onCodeChange: (code: string) => void;
+  onAddMessageToHistory: (mode: FeatureMode, text: string) => void;
   onAnalyze: () => void;
 }
 
@@ -48,12 +50,14 @@ export default function MainPanel({
   selectedModel,
   editorLanguage,
   hasInputChanged,
+  messages,
   code,
   response,
   onModeChange,
   onModelChange,
   onLanguageChange,
   onCodeChange,
+  onAddMessageToHistory,
   onAnalyze,
 }: MainPanelProps) {
   const [copied, setCopied] = useState(false);
@@ -62,6 +66,7 @@ export default function MainPanel({
   const [MonacoEditor, setMonacoEditor] = useState<any>(null);
   const [chatInput, setChatInput] = useState('');
   const [repoUrl, setRepoUrl] = useState('');
+  const [lastSentMessage, setLastSentMessage] = useState('');
 
   // Confirmation dialog state
   const [showConfirm, setShowConfirm] = useState(false);
@@ -74,6 +79,15 @@ export default function MainPanel({
       setMonacoEditor(() => mod.default);
     });
   }, []);
+
+  // Sync lastSentMessage with code prop when in chat mode
+  // This ensures that restoring a session from history updates the preview bubble,
+  // and that "New Session" clears the bubble.
+  useEffect(() => {
+    if (selectedMode === 'chat') {
+      setLastSentMessage(code || '');
+    }
+  }, [selectedMode, code]);
 
   const handleCopyResponse = () => {
     if (!response) return;
@@ -116,18 +130,28 @@ export default function MainPanel({
     isChatMode ? !chatInput.trim() :
       isRepoMode ? !repoUrl.trim() : true;
 
-  const isActionDisabled = isLoading || isInputEmpty || (
+  const isDuplicateMessage = isChatMode && chatInput.trim() === lastSentMessage.trim();
+
+  const isActionDisabled = isLoading || isInputEmpty || isDuplicateMessage || (
     !isChatMode && !hasInputChanged
   );
 
   // Handle action for all modes
   const handleAction = () => {
     if (isChatMode) {
+      if (isDuplicateMessage) return;
       // In chat mode, we use chatInput
+      setLastSentMessage(chatInput);
+      // Synchronously push to history for instant UI feedback
+      onAddMessageToHistory(selectedMode, chatInput);
       onCodeChange(chatInput);
+      setChatInput('');
     } else if (isRepoMode) {
       // In repo mode, we use repoUrl
       onCodeChange(repoUrl);
+    } else if (isEditorMode) {
+      // For analytical modes (Explain, Review, ect.), push code to history for visual continuity
+      onAddMessageToHistory(selectedMode, code);
     }
     // Perform analysis
     onAnalyze();
@@ -151,6 +175,8 @@ export default function MainPanel({
         <ChatPanel
           chatInput={chatInput}
           onChatInputChange={setChatInput}
+          onAction={handleAction}
+          isDisabled={isActionDisabled}
         />
       );
     }
@@ -159,6 +185,8 @@ export default function MainPanel({
         <RepoPanel
           repoUrl={repoUrl}
           onRepoUrlChange={setRepoUrl}
+          onAction={handleAction}
+          isDisabled={isActionDisabled}
         />
       );
     }
@@ -184,6 +212,9 @@ export default function MainPanel({
             rightPanel={
               <ResponsePanel
                 isLoading={isLoading}
+                selectedMode={selectedMode}
+                lastSentMessage={lastSentMessage}
+                messages={messages}
                 response={response}
                 onCopyResponse={handleCopyResponse}
                 copied={copied}

@@ -1,14 +1,19 @@
 'use client';
 
-import React, { useState, ComponentPropsWithoutRef } from 'react';
+import React, { useState, ComponentPropsWithoutRef, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import styles from '../../styles/ide/ResponsePanel.module.css';
 import { CopyIcon } from '../Icons';
+import ResponseMessage from '../ResponseMessage';
+import { Message } from '@/features/chat/chat-slice';
 
 interface ResponsePanelProps {
     isLoading: boolean;
+    selectedMode: string;
+    lastSentMessage: string;
+    messages: Message[];
     response: string;
     onCopyResponse: () => void;
     copied: boolean;
@@ -20,11 +25,22 @@ type CodeProps = ComponentPropsWithoutRef<'code'> & {
 
 export default function ResponsePanel({
     isLoading,
+    selectedMode,
+    lastSentMessage,
+    messages,
     response,
     onCopyResponse,
     copied,
 }: ResponsePanelProps) {
     const [localCopiedCode, setLocalCopiedCode] = useState<string | null>(null);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+    // Auto-scroll to bottom whenever messages or streaming response changes
+    useEffect(() => {
+        if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+        }
+    }, [messages, response, isLoading]);
 
     const handleCopyCode = (code: string) => {
         navigator.clipboard.writeText(code);
@@ -93,8 +109,30 @@ export default function ResponsePanel({
                 )}
             </div>
 
-            <div className={styles.responseContainer}>
-                {isLoading && !response ? (
+            <div className={styles.responseContainer} ref={scrollContainerRef}>
+                {messages && messages.length > 0 ? (
+                    <div className={styles.messagesList}>
+                        {messages.map((msg, idx) => (
+                            <ResponseMessage
+                                key={idx}
+                                role={msg.role}
+                                text={msg.text}
+                            />
+                        ))}
+                        {isLoading && response && (
+                            <ResponseMessage
+                                role="assistant"
+                                text={response}
+                            />
+                        )}
+                        {isLoading && (
+                            <div className={styles.streamingIndicator}>
+                                <div className={styles.streamingBar} />
+                                <span>AI is thinking...</span>
+                            </div>
+                        )}
+                    </div>
+                ) : isLoading && !response ? (
                     <div className={styles.loadingState}>
                         <div className={styles.loadingPulse} />
                         <span className={styles.loadingText}>Analyzing code architecture...</span>

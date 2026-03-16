@@ -7,9 +7,19 @@ import { mainPanelValues } from '@/constants/frontend-constants';
 interface ChatPanelProps {
     chatInput: string;
     onChatInputChange: (value: string) => void;
+    onAction: () => void;
+    isDisabled: boolean;
 }
 
-export default function ChatPanel({ chatInput, onChatInputChange }: ChatPanelProps) {
+export default function ChatPanel({ chatInput, onChatInputChange, onAction, isDisabled }: ChatPanelProps) {
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            if (!isDisabled) {
+                onAction();
+            }
+        }
+    };
     return (
         <div className={styles.panelWrapper}>
             <div className={styles.panelHeader}>
@@ -29,6 +39,7 @@ export default function ChatPanel({ chatInput, onChatInputChange }: ChatPanelPro
                     placeholder={mainPanelValues.chatPlaceholder}
                     value={chatInput}
                     onChange={(e) => onChatInputChange(e.target.value)}
+                    onKeyDown={handleKeyDown}
                 />
             </div>
         </div>

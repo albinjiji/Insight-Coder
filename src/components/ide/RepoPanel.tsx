@@ -7,9 +7,19 @@ import { mainPanelValues } from '@/constants/frontend-constants';
 interface RepoPanelProps {
     repoUrl: string;
     onRepoUrlChange: (value: string) => void;
+    onAction: () => void;
+    isDisabled: boolean;
 }
 
-export default function RepoPanel({ repoUrl, onRepoUrlChange }: RepoPanelProps) {
+export default function RepoPanel({ repoUrl, onRepoUrlChange, onAction, isDisabled }: RepoPanelProps) {
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            if (!isDisabled) {
+                onAction();
+            }
+        }
+    };
     return (
         <div className={styles.panelWrapper}>
             <div className={styles.panelHeader}>
@@ -30,6 +40,7 @@ export default function RepoPanel({ repoUrl, onRepoUrlChange }: RepoPanelProps) 
                     placeholder={mainPanelValues.repoPlaceholder}
                     value={repoUrl}
                     onChange={(e) => onRepoUrlChange(e.target.value)}
+                    onKeyDown={handleKeyDown}
                 />
             </div>
         </div>

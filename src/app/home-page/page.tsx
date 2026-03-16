@@ -5,10 +5,6 @@ import Sidebar from '@/components/Sidebar'
 import styles from '../../styles/pages/home-page.module.css'
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  deleteChat,
-  newChat,
-  selectChat,
-  selectChats,
   selectCurrentChat,
   selectIsLoading,
   selectIsAnyModeLoading,
@@ -18,17 +14,18 @@ import {
   selectResponseText,
   selectEditorLanguage,
   selectHasInputChanged,
+  selectMessages,
   setMode,
   setModel,
   setCode,
   setEditorLanguage,
+  addMessageToHistory,
 } from '@/features/chat/chat-slice';
 import { analyzeCode } from '@/features/chat/chat-thunks';
 import { EditorLanguage, FeatureMode, ModelId } from '@/constants/frontend-constants';
 
 function HomePage() {
   const dispatch = useDispatch();
-  const chats = useSelector(selectChats);
   const currentChat = useSelector(selectCurrentChat);
   const isLoading = useSelector(selectIsLoading);
   const isAnyLoading = useSelector(selectIsAnyModeLoading);
@@ -38,18 +35,8 @@ function HomePage() {
   const response = useSelector(selectResponseText);
   const editorLanguage = useSelector(selectEditorLanguage);
   const hasInputChanged = useSelector(selectHasInputChanged);
+  const messages = useSelector(selectMessages);
 
-  const handleNewChat = () => {
-    dispatch(newChat());
-  };
-
-  const handleSelectChat = (id: string) => {
-    dispatch(selectChat(id));
-  };
-
-  const handleDeleteChat = (id: string) => {
-    dispatch(deleteChat(id));
-  };
 
   const handleModeChange = (mode: FeatureMode) => {
     dispatch(setMode(mode));
@@ -84,12 +71,14 @@ function HomePage() {
         selectedModel={selectedModel}
         editorLanguage={editorLanguage}
         hasInputChanged={hasInputChanged}
+        messages={messages}
         code={code}
         response={response}
         onModeChange={handleModeChange}
         onModelChange={handleModelChange}
         onLanguageChange={handleLanguageChange}
         onCodeChange={handleCodeChange}
+        onAddMessageToHistory={(mode, text) => dispatch(addMessageToHistory({ mode, text }))}
         onAnalyze={handleAnalyze}
       />
     </div>

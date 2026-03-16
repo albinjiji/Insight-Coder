@@ -20,8 +20,7 @@ interface ChatSession {
 export interface HistoryItem {
     id: string;
     mode: FeatureMode;
-    code: string;
-    response: string;
+    messages: Message[];
     model: ModelId;
     timestamp: string;
     preview: string;
@@ -39,12 +38,13 @@ export interface LastRequest {
 export interface ModeState {
     code: string;
     response: string;
+    messages: Message[];
     isLoading: boolean;
     lastRequest: LastRequest | null;
 }
 
 function createDefaultModeState(): ModeState {
-    return { code: '', response: '', isLoading: false, lastRequest: null };
+    return { code: '', response: '', messages: [], isLoading: false, lastRequest: null };
 }
 
 export type ModeStates = Record<FeatureMode, ModeState>;
@@ -52,6 +52,7 @@ export type ModeStates = Record<FeatureMode, ModeState>;
 export interface ChatState {
     chats: ChatSession[];
     currentChatId: string | null;
+    activeHistoryId: string | null;
     pendingClarify: PendingClarify;
     // IDE panel state
     selectedMode: FeatureMode;
@@ -64,6 +65,7 @@ export interface ChatState {
 const initialState: ChatState = {
     chats: [],
     currentChatId: null,
+    activeHistoryId: null,
     pendingClarify: null,
     // IDE panel defaults
     selectedMode: 'explain',
@@ -124,6 +126,7 @@ const chatSlice = createSlice({
         // IDE panel reducers
         setMode(state, action: PayloadAction<FeatureMode>) {
             state.selectedMode = action.payload;
+            state.activeHistoryId = null; // Reset session context when switching modes
         },
         setModel(state, action: PayloadAction<ModelId>) {
             state.selectedModel = action.payload;
@@ -149,17 +152,53 @@ const chatSlice = createSlice({
             const item = action.payload;
             state.selectedMode = item.mode;
             state.selectedModel = item.model;
-            state.modeStates[item.mode].code = item.code;
-            state.modeStates[item.mode].response = item.response;
+            state.activeHistoryId = item.id;
+            
+            // For chat mode, we restore all messages
+            state.modeStates[item.mode].messages = item.messages || [];
+            
+            // Extract the last assistant response and user code for compatibility with simple views
+            const lastAssistant = [...item.messages].reverse().find(m => m.role === 'assistant');
+            const lastUser = [...item.messages].reverse().find(m => m.role === 'user');
+            
+            state.modeStates[item.mode].code = lastUser?.text || '';
+            state.modeStates[item.mode].response = lastAssistant?.text || '';
+            
             state.modeStates[item.mode].lastRequest = {
-                code: item.code,
+                code: lastUser?.text || '',
                 mode: item.mode,
                 model: item.model
             };
         },
         newSession(state) {
             state.modeStates[state.selectedMode] = createDefaultModeState();
+            state.activeHistoryId = null;
         },
+        addMessageToHistory(state, action: PayloadAction<{ mode: FeatureMode; text: string }>) {
+            const { mode, text } = action.payload;
+            const userMsg: Message = { role: 'user', text };
+            state.modeStates[mode].messages.push(userMsg);
+            
+            // If no active session, create one so this message belongs somewhere
+            if (!state.activeHistoryId) {
+                const newId = uuidv4();
+                state.activeHistoryId = newId;
+                state.history.unshift({
+                    id: newId,
+                    mode: mode,
+                    messages: [userMsg],
+                    model: state.selectedModel, // Add missing model
+                    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    preview: text.trim().slice(0, 60) || 'New Analysis',
+                });
+            } else {
+                // Update existing history item
+                const existing = state.history.find(h => h.id === state.activeHistoryId);
+                if (existing) {
+                    existing.messages.push(userMsg);
+                }
+            }
+        }
     },
     extraReducers: (builder) => {
         builder
@@ -173,26 +212,50 @@ const chatSlice = createSlice({
                 state.modeStates[state.selectedMode].isLoading = false;
             })
             .addCase(analyzeCode.pending, state => {
-                state.modeStates[state.selectedMode].isLoading = true;
-                state.modeStates[state.selectedMode].response = '';
+                const mode = state.selectedMode;
+                state.modeStates[mode].isLoading = true;
+                state.modeStates[mode].response = '';
             })
             .addCase(analyzeCode.fulfilled, (state, action) => {
                 const mode = state.selectedMode;
                 state.modeStates[mode].isLoading = false;
                 state.modeStates[mode].response = action.payload;
+
+                // Create assistant message
+                const assistantMsg: Message = { role: 'assistant', text: action.payload };
+
+                // Add to active session messages
+                state.modeStates[mode].messages.push(assistantMsg);
+
                 // Stamp last successful request
                 state.modeStates[mode].lastRequest = {
                     code: state.modeStates[mode].code,
                     mode: mode,
                     model: state.selectedModel,
                 };
-                // Add to history
+
+                // Update history
+                if (state.activeHistoryId) {
+                    const existing = state.history.find(h => h.id === state.activeHistoryId);
+                    if (existing) {
+                        existing.messages = [...state.modeStates[mode].messages];
+                        existing.timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        // Update preview if it was "Empty input" or similar
+                        if (existing.preview === 'Empty input' || existing.preview === 'New Chat') {
+                            existing.preview = state.modeStates[mode].code.trim().slice(0, 60) || 'Active session';
+                        }
+                        return;
+                    }
+                }
+
+                // If no active session or not found, create a new one
+                const newId = uuidv4();
+                state.activeHistoryId = newId;
                 const preview = state.modeStates[mode].code.trim().slice(0, 60);
                 state.history.unshift({
-                    id: uuidv4(),
+                    id: newId,
                     mode: mode,
-                    code: state.modeStates[mode].code,
-                    response: action.payload,
+                    messages: [...state.modeStates[mode].messages],
                     model: state.selectedModel,
                     timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                     preview: preview || 'Empty input',
@@ -221,6 +284,7 @@ export const {
     cancelModeLoading,
     restoreSession,
     newSession,
+    addMessageToHistory,
 } = chatSlice.actions;
 
 export default chatSlice.reducer;
@@ -247,6 +311,8 @@ export const selectIsLoading = (state: { chat: ChatState }) =>
     state.chat.modeStates[state.chat.selectedMode].isLoading;
 export const selectCode = (state: { chat: ChatState }) =>
     state.chat.modeStates[state.chat.selectedMode].code;
+export const selectMessages = (state: { chat: ChatState }) =>
+    state.chat.modeStates[state.chat.selectedMode].messages;
 export const selectResponseText = (state: { chat: ChatState }) =>
     state.chat.modeStates[state.chat.selectedMode].response;
 
