@@ -1,6 +1,8 @@
 # InsightCoder
 
-**AI-powered coding assistant** for the browser. InsightCoder helps you write, debug, and learn code with clear explanations, syntax-highlighted snippets, and a chat UX that supports multi-turn **clarifications**.
+**InsightCoder** is an **AI-powered developer assistant with an integrated IDE** designed to help engineers understand, debug, and work with complex codebases.
+
+It provides a modern **multi-mode AI workspace and browser-based IDE** for writing, exploring, and improving code.
 
 [![Next.js](https://img.shields.io/badge/Next.js-14%2B-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue)](https://www.typescriptlang.org/)
@@ -11,13 +13,69 @@
 
 ## ✨ Features
 
-- **Chat UX** with history, auto-titles, delete chat, and “New Chat”
-- **Code-aware answers** (Gemini 3 Flash Preview with fallback to 1.5 Flash)
-- **Classification gate** (filters non-coding queries with a friendly message)
-- **Clarify flow**: asks for missing context; supports chained clarifications
-- **Markdown + syntax highlighting** (react-markdown + Prism oneDark)
-- **Redux Toolkit** state
-- **Dark, clean UI** with CSS Modules
+### Multi-Mode AI Workspace
+
+---InsightCoder introduces specialized AI modes designed for real developer workflows.
+
+| Mode | Purpose |
+|------|---------|
+| Chat | General coding discussions |
+| Explain | Code understanding |
+| Review | AI-assisted code review |
+| Debug | Bug diagnosis |
+| Test | Unit test generation |
+| Repo | Codebase exploration |
+
+Each mode helps developers interact with the AI in a **task-focused workflow**.
+
+---
+
+## 💻 Integrated Browser IDE
+
+InsightCoder includes a **built-in IDE experience inside the browser**.
+
+Developers can:
+
+- Edit code directly inside the application
+- Ask AI questions about the current code
+- Get explanations for selected code blocks
+- Debug issues without leaving the editor
+- Generate tests for the current file
+- Review code with AI assistance
+
+This makes InsightCoder feel like a **lightweight AI-powered development environment**, not just a chat interface.
+
+---
+
+## 🚀 Core Capabilities
+
+- **Integrated browser IDE**
+- **Multi-mode AI assistant**
+- **Chat history with auto titles**
+- **New Chat**
+- **Code-aware responses**
+- **Clarification flow for incomplete prompts**
+- **Markdown responses with syntax highlighting**
+- **Coding query classification**
+- **Redux state management**
+- **Clean dark UI**
+
+---
+
+## 🖥 Main Panel
+
+The main panel now acts as the **AI workspace and IDE interaction layer**.
+
+Developers can switch between modes to perform specific tasks:
+
+- **Chat Mode** – General coding questions
+- **Explain Mode** – Understand complex code
+- **Review Mode** – AI-assisted code review
+- **Debug Mode** – Diagnose errors and bugs
+- **Test Mode** – Generate tests and edge cases
+- **Repo Mode** – Ask questions about the entire repository
+
+This helps developers **navigate large codebases faster**.
 
 ---
 
@@ -28,61 +86,6 @@
 - **AI**: `@google/genai` (Gemini) via a Next.js API route  
 - **Markdown**: `react-markdown` + `react-syntax-highlighter` (Prism oneDark)  
 - **IDs**: `uuid` (v4)
-
----
-
-## 📁 Project Structure
-
-```text
-.
-├─ .env.local                  # GEMINI_API_KEY lives here (not committed)
-├─ package.json
-├─ tsconfig.json
-├─ next.config.ts
-├─ postcss.config.mjs
-├─ tailwind.config.ts          # if you use Tailwind (otherwise omit)
-├─ README.md
-├─ LICENSE
-└─ src/
-   ├─ app/
-   │  ├─ api/
-   │  │  └─ gemini/
-   │  │     └─ route.ts        # Next.js API route → calls Google Gemini
-   │  ├─ home-page/
-   │  │  └─ page.tsx           # App shell (Sidebar + MainPanel)
-   │  ├─ layout.tsx            # Wraps Redux Provider
-   │  └─ page.tsx              # Landing page
-   │
-   ├─ components/
-   │  ├─ chat-input.tsx
-   │  ├─ main-panel.tsx
-   │  ├─ response-message.tsx
-   │  ├─ sidebar.tsx
-   │  └─ icons.tsx
-   │
-   ├─ constants/
-   │  ├─ frontend-constants.tsx
-   │
-   ├─ features/
-   │  └─ chat/
-   │     ├─ chat-slice.ts       # Redux slice (chats, selection, clarify, loading)
-   │     └─ chat-thunks.ts      # sendMessage() async flow
-   │
-   ├─ lib/
-   │  └─ gemini-client.ts       # classify → correct → answer → clarify helpers
-   │
-   ├─ styles/
-   │  ├─ components/           # *.module.css for components
-   │  │  ├─ chat-input.module.css
-   │  │  ├─ main-panel.module.css
-   │  │  ├─ response-message.module.css
-   │  │  └─ sidebar.module.css
-   │  └─ pages/                # *.module.css for pages
-   │     ├─ home-page.module.css
-   │     └─ landing-page.module.css
-   │
-   └─ store.ts                 # configureStore (adds chat reducer)
-```
 
 ---
 
@@ -124,77 +127,13 @@ Then open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
-## 🔑 API Route (Gemini)
-
-The API endpoint at:  
-`src/app/api/gemini/route.ts`  
-accepts POST requests with:
-
-```json
-{ "prompt": "your text", "model": "gemini-3-flash-preview | gemini-1.5-flash" }
-```
-
-and returns:
-
-```json
-{ "text": "model response", "modelUsed": "gemini-3-flash-preview" }
-```
-
-- The route normalizes SDK responses and **retries/falls back** if a model is UNAVAILABLE / 503.
-
 #### Models used
 
-- **gemini-3-flash-preview** (primary generation)
-- **gemini-1.5-flash** (classification, typo-correction, fallback generation)
-
----
-
-## 🧠 Chat Flow (Send button)
-
-Implemented across `chatThunks.ts` and `lib/geminiClient.ts`:
-
-- **Optimistic UI** – your message appears immediately.
-- **Clarify mode** (if last assistant message starts with `Clarify:`):
-
-  - Combine the original question + clarify question + your short reply
-  - Ask again → chain clarifications if needed; otherwise show final answer
-
-- **Normal mode**:
-  - Classify (is it coding-related?) → if not, show a friendly non-code message
-  - Correct typos for technical terms
-  - Answer (3 → 1.5 with retries/fallback)
-  - If weak/ambiguous, return a single `Clarify:` line
-
----
-
-## 🧭 Redux State
-
-- `chats: ChatSession[]`
-- `currentChatId: string | null`
-- `isLoading: boolean`
-- `pendingClarify: { basePrompt: string; question: string } | null`
-
-**Reducers**
-
-- `newChat()` — create & select a fresh chat
-- `selectChat(id)` — switch active chat
-- `addMessage({ chatId, message })` — append messages
-- `setTitle({ chatId, title })` — auto/rename chat title
-- `setPendingClarify(ctx | null)` — store/clear clarify context
-- `deleteChat(id) / deleteAllChats()` — remove chats
-
-**Thunk**
-
-- `sendMessage({ prompt })` — runs the full sequence above
-
----
-
-## 🧩 UI Components
-
-- **Sidebar** — chat list (uniform tiles), “New Chat”, delete chat
-- **MainPanel** — header, scrollable messages (auto-scroll), spinner, input dock
-- **ChatInput** — autosizing textarea; Enter / Shift+Enter
-- **ResponseMessage** — Markdown + inline/fenced code with Prism oneDark
+- **gemini-3-flash-preview**
+- **gemini-2.5-flash**
+- **gemini-2.0-flash**
+- **gemini-1.5-flash**
+- **gemini-flash-latest**
 
 ---
 
