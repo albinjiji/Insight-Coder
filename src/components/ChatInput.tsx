@@ -1,10 +1,11 @@
 'use client';
 import React, { useRef, useState } from 'react';
-import styles from '../styles/components/chat-input.module.css';
-import { PlusIcon, SendIcon } from './icons';
+import styles from '../styles/components/ChatInput.module.css';
+import { PlusIcon, SendIcon } from './Icons';
 
 export default function ChatInput({ onSend }: { onSend?: (text: string) => void }) {
   const [value, setValue] = useState('');
+  const [lastSent, setLastSent] = useState('');
   const taRef = useRef<HTMLTextAreaElement | null>(null);
 
   const autosize = () => {
@@ -24,18 +25,24 @@ export default function ChatInput({ onSend }: { onSend?: (text: string) => void 
     requestAnimationFrame(autosize);
   };
 
+  const isDuplicate = value.trim() === lastSent;
+  const isDisabled = !value.trim() || isDuplicate;
+
   const onKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
     // Enter sends, Shift+Enter makes a new line
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      send();
+      if (!isDisabled) {
+        send();
+      }
     }
   };
 
   const send = () => {
     const text = value.trim();
-    if (!text) return;
+    if (!text || isDuplicate) return;
     onSend?.(text);
+    setLastSent(text);
     setValue('');
     requestAnimationFrame(autosize);
   };
@@ -77,12 +84,11 @@ export default function ChatInput({ onSend }: { onSend?: (text: string) => void 
           className={styles.sendBtn}
           aria-label="Send"
           title="Send"
-          disabled={!value.trim()}
+          disabled={isDisabled}
         >
           <SendIcon />
         </button>
       </div>
     </form>
-
   );
 }

@@ -3,9 +3,10 @@ import defaultTheme from 'tailwindcss/defaultTheme';
 
 const config: Config = {
   content: [
+    './src/**/*.{ts,tsx}',
     './app/**/*.{ts,tsx}',
     './components/**/*.{ts,tsx}',
-    './pages/**/*.{ts,tsx}', // only include if you're using Pages Router
+    './pages/**/*.{ts,tsx}',
   ],
   theme: {
     extend: {

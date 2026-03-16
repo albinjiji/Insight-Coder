@@ -3,7 +3,7 @@ import React from 'react'
 
 import styles from '../../styles/pages/landing-page.module.css'
 import { buttonLabels, landingPageValues } from '../../constants/frontend-constants'
-import { LightBulbIcon } from '@/components/icons'
+import { LightBulbIcon } from '@/components/Icons'
 import { useRouter } from 'next/navigation'
 
 const LandingPage = () => {
@@ -13,10 +13,10 @@ const LandingPage = () => {
   const handleNavigation = () => {
     router.push('/home-page');
   };
- 
+
   return (
     <div className={styles.container}>
-      
+
       {/* page-scoped background */}
       <div className={styles.bgGridOverlay} aria-hidden />
       <div className={styles.grid3d} aria-hidden />

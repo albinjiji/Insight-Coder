@@ -1,7 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export type ModelName = 'gemini-3-flash-preview' | 'gemini-1.5-flash';
+export type ModelName =
+  | 'gemini-2.0-flash'
+  | 'gemini-2.5-flash'
+  | 'gemini-3.1-flash-lite-preview'
+  | 'gemini-flash-latest'
+  | 'gemini-1.5-flash'; // kept for old code compatibility if needed
 
-const FALLBACKS: ModelName[] = ['gemini-3-flash-preview', 'gemini-1.5-flash'];
+const FALLBACKS: ModelName[] = [
+  'gemini-2.0-flash',
+  'gemini-2.5-flash',
+  'gemini-3.1-flash-lite-preview',
+  'gemini-flash-latest'
+];
 const NON_CODE_FALLBACK_MESSAGE =
   "This question doesn't seem related to coding or debugging. InsightCoder helps with programming, debugging, and code learning assistance.";
 
@@ -24,16 +34,88 @@ export async function postGemini(prompt: string, model: ModelName) {
   return data as { text: string; modelUsed?: string };
 }
 
+/** Stream response from the API route via Server-Sent Events. */
+export async function streamGemini(
+  prompt: string,
+  model: ModelName,
+  onChunk: (accumulated: string) => void,
+): Promise<string> {
+  const res = await fetch('/api/gemini?stream=true', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt, model }),
+  });
+
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data?.error || 'Stream request failed');
+  }
+
+  const reader = res.body?.getReader();
+  if (!reader) throw new Error('No readable stream');
+
+  const decoder = new TextDecoder();
+  let accumulated = '';
+  let buffer = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop() || ''; // keep incomplete line in buffer
+
+    for (const line of lines) {
+      if (!line.startsWith('data: ')) continue;
+      const payload = line.slice(6).trim();
+      if (payload === '[DONE]') break;
+
+      try {
+        const parsed = JSON.parse(payload);
+        if (parsed.error) {
+          throw new Error(parsed.error);
+        }
+        if (parsed.text) {
+          accumulated += parsed.text;
+          onChunk(accumulated);
+        }
+      } catch (e: any) {
+        // If it's an explicit error from the server, propagate it
+        if (e.message && (e.message.includes('overloaded') || e.message.includes('503'))) {
+          throw e;
+        }
+        // otherwise skip malformed chunks
+      }
+    }
+  }
+
+  return accumulated || 'No response received.';
+}
+
 function isOverloadError(err: unknown): boolean {
   const data: any = (err as any)?.data ?? (err as any);
   const raw = data?.error ?? data?.message ?? data;
+
+  if (raw === 'models_overloaded') return true;
+
+  const check = (str: string) => {
+    const s = String(str).toUpperCase();
+    return s.includes('503') || s.includes('UNAVAILABLE') || s.includes('OVERLOADED') || s.includes('BUSY') || s.includes('LIMIT') || s.includes('429') || s.includes('RESOURCE_EXHAUSTED');
+  };
+
+  if (typeof raw === 'string') return check(raw);
+
   try {
-    const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
-    const code = parsed?.error?.code;
-    const status = parsed?.error?.status;
-    return code === 503 || status === 'UNAVAILABLE';
+    const parsed = typeof raw === 'object' ? raw : JSON.parse(raw);
+    const code = parsed?.error?.code ?? parsed?.code;
+    const status = parsed?.error?.status ?? parsed?.status;
+    const msg = parsed?.error?.message ?? parsed?.message ?? '';
+
+    if (code === 503 || code === 429 || status === 'UNAVAILABLE' || status === 'RESOURCE_EXHAUSTED') return true;
+    return check(msg);
   } catch {
-    return typeof raw === 'string' && /503|UNAVAILABLE/i.test(raw as string);
+    return false;
   }
 }
 
@@ -127,7 +209,7 @@ export async function generateAnswerWithFallback(prompt: string): Promise<string
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
     // requestWithRetries already tried 2.5 then 1.5
-    return 'The model is busy. Please try again in a moment.';
+    return 'The Gemini models are currently busy or you have reached your free tier limit. Please wait a few seconds or check your console for details.';
   }
 }
 

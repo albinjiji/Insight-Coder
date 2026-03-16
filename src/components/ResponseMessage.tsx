@@ -4,8 +4,8 @@ import React, { ComponentPropsWithoutRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import styles from '../styles/components/response-message.module.css';
-import { CopyIcon } from './icons';
+import styles from '../styles/components/ResponseMessage.module.css';
+import { CopyIcon } from './Icons';
 import { responseMessagesValues } from '@/constants/frontend-constants';
 
 interface ResponseMessageProps {
@@ -25,14 +25,12 @@ export default function ResponseMessage({
 
   return (
     <div
-      className={`${styles.messageWrapper} ${
-        isUser ? styles.userMessage : styles.assistantMessage
-      }`}
+      className={`${styles.messageWrapper} ${isUser ? styles.userMessage : styles.assistantMessage
+        }`}
     >
       <div
-        className={`${styles.messageBubble} ${
-          isUser ? styles.userBubble : styles.assistantBubble
-        }`}
+        className={`${styles.messageBubble} ${isUser ? styles.userBubble : styles.assistantBubble
+          }`}
       >
         {isUser ? (
           // User message: plain text only (no markdown)
@@ -76,11 +74,10 @@ export default function ResponseMessage({
 
                 return (
                   <code
-                    className={`${
-                      isUser
+                    className={`${isUser
                         ? styles.userInlineCode
                         : styles.assistantInlineCode
-                    }`}
+                      }`}
                     {...props}
                   >
                     {children}

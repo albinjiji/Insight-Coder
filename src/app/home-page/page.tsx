@@ -1,51 +1,103 @@
 'use client';
 import React from 'react'
-import MainPanel from '@/components/main-panel';
-import Sidebar from '@/components/sidebar'
+import MainPanel from '@/components/MainPanel';
+import Sidebar from '@/components/Sidebar'
 import styles from '../../styles/pages/home-page.module.css'
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteChat, newChat, selectChat, selectChats, selectCurrentChat, selectIsLoading } from '@/features/chat/chat-slice';
-import { sendMessage } from '@/features/chat/chat-thunks';
+import {
+  selectCurrentChat,
+  selectIsLoading,
+  selectIsAnyModeLoading,
+  selectMode,
+  selectModel,
+  selectCode,
+  selectResponseText,
+  selectEditorLanguage,
+  selectHasInputChanged,
+  selectMessages,
+  setMode,
+  setModel,
+  setCode,
+  setEditorLanguage,
+  addMessageToHistory,
+  selectRepoUrl,
+  selectIsRepoConnected,
+  setRepoUrl,
+  setRepoConnected,
+} from '@/features/chat/chat-slice';
+import { analyzeCode } from '@/features/chat/chat-thunks';
+import { EditorLanguage, FeatureMode, ModelId } from '@/constants/frontend-constants';
 
 function HomePage() {
   const dispatch = useDispatch();
-  const chats = useSelector(selectChats);
   const currentChat = useSelector(selectCurrentChat);
   const isLoading = useSelector(selectIsLoading);
+  const isAnyLoading = useSelector(selectIsAnyModeLoading);
+  const selectedMode = useSelector(selectMode);
+  const selectedModel = useSelector(selectModel);
+  const code = useSelector(selectCode);
+  const response = useSelector(selectResponseText);
+  const editorLanguage = useSelector(selectEditorLanguage);
+  const hasInputChanged = useSelector(selectHasInputChanged);
+  const messages = useSelector(selectMessages);
+  const repoUrl = useSelector(selectRepoUrl);
+  const isRepoConnected = useSelector(selectIsRepoConnected);
 
-  const handleNewChat = () => {
-    dispatch(newChat());
+
+  const handleModeChange = (mode: FeatureMode) => {
+    dispatch(setMode(mode));
   };
 
-  const handleSelectChat = (id: string) => {
-    dispatch(selectChat(id));
+  const handleModelChange = (model: ModelId) => {
+    dispatch(setModel(model));
   };
 
-  const handleSend = (prompt: string) => {
+  const handleCodeChange = (value: string) => {
+    dispatch(setCode(value));
+  };
+
+  const handleLanguageChange = (lang: EditorLanguage) => {
+    dispatch(setEditorLanguage(lang));
+  };
+
+  const handleRepoUrlChange = (url: string) => {
+    dispatch(setRepoUrl(url));
+  };
+
+  const handleRepoConnectedChange = (connected: boolean) => {
+    dispatch(setRepoConnected(connected));
+  };
+
+  const handleAnalyze = () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    dispatch(sendMessage({ prompt }) as any);
+    dispatch(analyzeCode() as any);
   };
-
-  const handleDeleteChat = (id: string) => {
-    dispatch(deleteChat(id));
-  }
 
   return (
     <div className={styles.app}>
       <Sidebar
-        chats={chats.map(c => ({
-          id: c.id,
-          title: c.title || 'New Chat',
-        }))}
-        onSelectChat={handleSelectChat}
-        onNewChat={handleNewChat}
         activeChatId={currentChat?.id}
-        onDeleteChat={handleDeleteChat}
       />
       <MainPanel
-        onSend={handleSend}
-        messages={currentChat?.messages || []}
         isLoading={isLoading}
+        isAnyLoading={isAnyLoading}
+        selectedMode={selectedMode}
+        selectedModel={selectedModel}
+        editorLanguage={editorLanguage}
+        hasInputChanged={hasInputChanged}
+        messages={messages}
+        code={code}
+        response={response}
+        repoUrl={repoUrl}
+        isRepoConnected={isRepoConnected}
+        onModeChange={handleModeChange}
+        onModelChange={handleModelChange}
+        onLanguageChange={handleLanguageChange}
+        onCodeChange={handleCodeChange}
+        onRepoUrlChange={handleRepoUrlChange}
+        onRepoConnectedChange={handleRepoConnectedChange}
+        onAddMessageToHistory={(mode, text) => dispatch(addMessageToHistory({ mode, text }))}
+        onAnalyze={handleAnalyze}
       />
     </div>
   )
