@@ -11,6 +11,7 @@ import {
   newSession,
   HistoryItem,
 } from '@/features/chat/chat-slice'
+import { deleteChatSession } from '@/features/chat/chat-thunks'
 import { selectAuthUser } from '@/features/auth/auth-slice'
 import { createClient } from '@/lib/supabase/client'
 
@@ -48,7 +49,8 @@ function Sidebar({
 
   const handleDeleteHistory = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    // For now, we don't have a deleteHistory action, but we could add one.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    dispatch(deleteChatSession(id) as any);
   };
 
   const handleSignOut = async () => {
@@ -93,6 +95,13 @@ function Sidebar({
                     <div className={styles.itemHeader}>
                       <span className={styles.modeBadge}>{item.mode}</span>
                       <span className={styles.timestamp}>{item.timestamp}</span>
+                      <button 
+                        className={styles.deleteBtn}
+                        onClick={(e) => handleDeleteHistory(e, item.id)}
+                        title="Delete session"
+                      >
+                        <DeleteIcon />
+                      </button>
                     </div>
                     <div className={styles.previewText}>
                       {item.preview}

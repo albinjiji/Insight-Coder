@@ -13,6 +13,7 @@ import {
   updateSession,
   saveMessage,
   checkSessionExists,
+  deleteSession,
 } from "@/lib/supabase/chat-db";
 
 // ─── Load sessions from Supabase on mount ───────────────────────────
@@ -202,6 +203,9 @@ ${code}
             repoUrl: chatState.modeStates[selectedMode].repoUrl,
             isRepoConnected: chatState.modeStates[selectedMode].isRepoConnected,
           });
+          // Save only the new user input (it was already added to Redux history, 
+          // but not yet to the DB for this existing session)
+          await saveMessage(sessionId, 'user', code);
         } else {
           // Session doesn't exist — create it first
           await createSession(userId, {
@@ -212,14 +216,13 @@ ${code}
             repoUrl: chatState.modeStates[selectedMode].repoUrl,
             isRepoConnected: chatState.modeStates[selectedMode].isRepoConnected,
           });
-          // Save all existing in-memory messages to the new DB session
+          // Save all existing in-memory messages (including the user input that started this)
           for (const msg of chatState.modeStates[selectedMode].messages) {
             await saveMessage(sessionId, msg.role, msg.text);
           }
         }
 
-        // Save the new user input and assistant response
-        await saveMessage(sessionId, 'user', code);
+        // Save the assistant response
         await saveMessage(sessionId, 'assistant', finalText);
       }
     } catch (dbError: unknown) {
@@ -238,4 +241,15 @@ ${code}
       return rejectWithValue('The Gemini models are currently busy or you have reached your free tier limit. Please wait a few seconds or check your terminal console for the specific error details.');
     }
   }
+});
+
+// ─── Delete Chat Session ──────────────────────────────────────────
+
+export const deleteChatSession = createAsyncThunk<
+  string,
+  string,
+  { state: { chat: ChatState } }
+>('chat/deleteChatSession', async (sessionId, { dispatch }) => {
+  await deleteSession(sessionId);
+  return sessionId;
 });

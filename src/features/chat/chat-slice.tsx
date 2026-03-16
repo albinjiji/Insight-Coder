@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { v4 as uuidv4 } from 'uuid';
-import { sendMessage, analyzeCode, loadUserSessions } from "./chat-thunks";
+import { sendMessage, analyzeCode, loadUserSessions, deleteChatSession } from "./chat-thunks";
 import { EditorLanguage, FeatureMode, ModelId } from "@/constants/frontend-constants";
 
 type Role = 'user' | 'assistant';
@@ -192,6 +192,14 @@ const chatSlice = createSlice({
             state.modeStates[state.selectedMode] = createDefaultModeState();
             state.activeHistoryId = null;
         },
+        deleteHistorySession(state, action: PayloadAction<string>) {
+            const sessionId = action.payload;
+            state.history = state.history.filter((h: HistoryItem) => h.id !== sessionId);
+            if (state.activeHistoryId === sessionId) {
+                state.activeHistoryId = null;
+                state.modeStates[state.selectedMode] = createDefaultModeState();
+            }
+        },
         setRepoUrl(state, action: PayloadAction<string>) {
             state.modeStates[state.selectedMode].repoUrl = action.payload;
         },
@@ -317,13 +325,22 @@ const chatSlice = createSlice({
             })
             .addCase(loadUserSessions.rejected, (state) => {
                 state.sessionsLoaded = true; // mark as loaded even on failure so we don't retry endlessly
+            })
+            // ── Delete session from Supabase ──
+            .addCase(deleteChatSession.fulfilled, (state, action) => {
+                const sessionId = action.payload;
+                state.history = state.history.filter(h => h.id !== sessionId);
+                if (state.activeHistoryId === sessionId) {
+                    state.activeHistoryId = null;
+                    state.modeStates[state.selectedMode] = createDefaultModeState();
+                }
             });
     },
 });
 
 export const {
     addMessage,
-    deleteChat,
+    deleteHistorySession,
     newChat,
     selectChat,
     setPendingClarify,
