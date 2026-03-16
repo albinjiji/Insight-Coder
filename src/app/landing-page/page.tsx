@@ -11,7 +11,7 @@ const LandingPage = () => {
   const router = useRouter()
 
   const handleNavigation = () => {
-    router.push('/home-page');
+    router.push('/signin');
   };
 
   return (

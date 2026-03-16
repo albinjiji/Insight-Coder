@@ -9,6 +9,33 @@ export const buttonLabels = {
     getStarted: 'Get Started',
 };
 
+export const authPageValues = {
+    signInTitle: 'Welcome Back',
+    signInSubtitle: 'Sign in to continue to InsightCoder',
+    signUpTitle: 'Create Account',
+    signUpSubtitle: 'Get started with InsightCoder',
+    emailLabel: 'Email',
+    emailPlaceholder: 'you@example.com',
+    passwordLabel: 'Password',
+    passwordPlaceholder: '••••••••',
+    confirmPasswordLabel: 'Confirm Password',
+    confirmPasswordPlaceholder: '••••••••',
+    signInButton: 'Sign In',
+    signUpButton: 'Create Account',
+    signingIn: 'Signing in...',
+    signingUp: 'Creating account...',
+    noAccount: "Don't have an account?",
+    signUpLink: 'Sign up',
+    hasAccount: 'Already have an account?',
+    signInLink: 'Sign in',
+    errorEmailRequired: 'Email is required',
+    errorEmailInvalid: 'Please enter a valid email address',
+    errorPasswordRequired: 'Password is required',
+    errorPasswordLength: 'Password must be at least 6 characters',
+    errorConfirmPasswordRequired: 'Please confirm your password',
+    errorPasswordMismatch: 'Passwords do not match',
+};
+
 export const sidebarValues = {
     newChat: 'New Chat',
     chats: 'Chats',
