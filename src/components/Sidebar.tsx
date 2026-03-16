@@ -21,20 +21,25 @@ interface SidebarProps {
   onDeleteChat?: (id: string) => void;
   onNewChat?: () => void;
   onSelectChat?: (id: string) => void;
+  menuOpen: boolean;
+  onToggleMenu: () => void;
+  onCloseMenu: () => void;
 }
 
 function Sidebar({
   activeChatId,
+  menuOpen,
+  onToggleMenu,
+  onCloseMenu,
 }: SidebarProps) {
   const dispatch = useDispatch();
   const router = useRouter();
   const history = useSelector(selectHistory);
   const user = useSelector(selectAuthUser);
-  const [menuOpen, setMenuOpen] = useState(true);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
 
   const toggleMenu = () => {
-    setMenuOpen(!menuOpen);
+    onToggleMenu();
   };
 
   const handleNewSession = () => {
@@ -45,6 +50,11 @@ function Sidebar({
   const handleRestoreSession = (item: HistoryItem) => {
     dispatch(restoreSession(item));
     setActiveSessionId(item.id);
+    
+    // Auto-close menu on mobile/tablet after selection
+    if (window.innerWidth <= 1024) {
+      onCloseMenu();
+    }
   };
 
   const handleDeleteHistory = (e: React.MouseEvent, id: string) => {

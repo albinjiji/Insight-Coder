@@ -3,6 +3,7 @@ import React, { useEffect } from 'react'
 import MainPanel from '@/components/MainPanel';
 import Sidebar from '@/components/Sidebar'
 import styles from '../../styles/pages/home-page.module.css'
+import sidebarStyles from '../../styles/components/Sidebar.module.css'
 import { useDispatch, useSelector } from 'react-redux';
 import {
   selectCurrentChat,
@@ -31,6 +32,7 @@ import { selectIsAuthenticated } from '@/features/auth/auth-slice';
 
 function HomePage() {
   const dispatch = useDispatch();
+  const [menuOpen, setMenuOpen] = React.useState(false);
   const currentChat = useSelector(selectCurrentChat);
   const isLoading = useSelector(selectIsLoading);
   const isAnyLoading = useSelector(selectIsAnyModeLoading);
@@ -87,6 +89,9 @@ function HomePage() {
     <div className={styles.app}>
       <Sidebar
         activeChatId={currentChat?.id}
+        menuOpen={menuOpen}
+        onToggleMenu={() => setMenuOpen(!menuOpen)}
+        onCloseMenu={() => setMenuOpen(false)}
       />
       <MainPanel
         isLoading={isLoading}
@@ -100,6 +105,8 @@ function HomePage() {
         response={response}
         repoUrl={repoUrl}
         isRepoConnected={isRepoConnected}
+        isMenuOpen={menuOpen}
+        onToggleMenu={() => setMenuOpen(!menuOpen)}
         onModeChange={handleModeChange}
         onModelChange={handleModelChange}
         onLanguageChange={handleLanguageChange}
@@ -109,6 +116,12 @@ function HomePage() {
         onAddMessageToHistory={(mode, text) => dispatch(addMessageToHistory({ mode, text }))}
         onAnalyze={handleAnalyze}
       />
+      {menuOpen && (
+        <div
+          className={sidebarStyles.overlay}
+          onClick={() => setMenuOpen(false)}
+        />
+      )}
     </div>
   )
 }

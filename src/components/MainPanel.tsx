@@ -42,6 +42,8 @@ interface MainPanelProps {
   onRepoConnectedChange: (connected: boolean) => void;
   onAddMessageToHistory: (mode: FeatureMode, text: string) => void;
   onAnalyze: () => void;
+  isMenuOpen: boolean;
+  onToggleMenu: () => void;
 }
 
 // Modes that use the Monaco code editor
@@ -67,6 +69,8 @@ export default function MainPanel({
   onRepoConnectedChange,
   onAddMessageToHistory,
   onAnalyze,
+  isMenuOpen,
+  onToggleMenu,
 }: MainPanelProps) {
   const [copied, setCopied] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -233,6 +237,8 @@ export default function MainPanel({
           <Header
             selectedModel={selectedModel}
             onModelChange={onModelChange}
+            isMenuOpen={isMenuOpen}
+            onToggleMenu={onToggleMenu}
           />
 
           <ModeTabs

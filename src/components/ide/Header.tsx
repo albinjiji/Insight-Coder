@@ -7,12 +7,21 @@ import { modelOptions, ModelId } from '@/constants/frontend-constants';
 interface HeaderProps {
     selectedModel: ModelId;
     onModelChange: (model: ModelId) => void;
+    isMenuOpen: boolean;
+    onToggleMenu: () => void;
 }
 
-export default function Header({ selectedModel, onModelChange }: HeaderProps) {
+import { MenuIcon } from '../Icons';
+
+export default function Header({ selectedModel, onModelChange, isMenuOpen, onToggleMenu }: HeaderProps) {
     return (
         <header className={styles.header}>
             <div className={styles.headerLeft}>
+                {!isMenuOpen && (
+                    <button className={styles.menuTrigger} onClick={onToggleMenu}>
+                        <MenuIcon />
+                    </button>
+                )}
                 <div className={styles.logoMark} />
                 <h1 className={styles.headerTitle}>InsightCoder</h1>
                 <span className={styles.headerBadge}>AI</span>

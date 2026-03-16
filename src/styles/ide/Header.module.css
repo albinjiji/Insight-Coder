@@ -10,7 +10,30 @@
 .headerLeft {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
+}
+
+.menuTrigger {
+    background: none;
+    border: none;
+    color: var(--foreground);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    border-radius: 6px;
+    transition: background 0.2s ease;
+}
+
+.menuTrigger:hover {
+    background: var(--panel-bg-elevated);
+}
+
+@media (min-width: 1025px) {
+    .menuTrigger {
+        display: none;
+    }
 }
 
 .logoMark {
