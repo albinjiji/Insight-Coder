@@ -3,6 +3,57 @@ export const landingPageValues = {
     subHeaderOne: 'Code with Clarity,',
     subHeaderTwo: 'Learn with Insight.',
     description: 'InsightCoder is an AI-powered developer assistant that helps you explain, review, debug, and improve code with intelligent insights and conversational support.',
+    heroBadge: 'AI-Powered Developer Assistant',
+    heroScroll: 'Scroll',
+    featuresLabel: 'Core Capabilities',
+    featuresTitle: 'Built for Modern Workflows',
+    featuresSubtitle: 'InsightCoder brings enterprise-grade intelligence to your local development environment.',
+    featuresList: [
+        { title: 'Intelligent Explainer', desc: 'Break down complex logic into human-readable steps instantly.', tag: 'Semantic' },
+        { title: 'Deep Code Review', desc: 'Identify security flaws and performance leaks before they reach production.', tag: 'Automated' },
+        { title: 'Contextual Debugging', desc: 'Provide your error logs and let AI find the needle in the haystack.', tag: 'Runtime' },
+        { title: 'Test Generation', desc: 'Generate high-coverage unit tests for any function in seconds.', tag: 'Quality' },
+        { title: 'Repo Intelligence', desc: 'Ask questions about your entire codebase, not just single files.', tag: 'Structural' },
+        { title: 'Conversational Pair', desc: 'A dedicated AI teammate that remembers your project preferences.', tag: 'Persistent' },
+    ],
+    howItWorksTitle: 'How It Works',
+    howItWorksSubtitle: 'Four steps to 10x your productivity.',
+    howItWorksSteps: [
+        { step: '01', title: 'Input Code', desc: 'Paste your snippet or connect your entire repository context.' },
+        { step: '02', title: 'Deep Analysis', desc: 'Our AI engine parses structure, logic, and dependencies.' },
+        { step: '03', title: 'Receive Insights', desc: 'Get actionable suggestions, bug fixes, or explanations.' },
+        { step: '04', title: 'Deploy Better', desc: 'Ship clean, verified, and well-documented code daily.' },
+    ],
+    ctaTitlePrefix: 'Ready to code with ',
+    ctaTitleHighlight: 'Insight?',
+    footerCopyrightSuffix: ' InsightCoder AI. Built for the future of development.',
+};
+
+export const navbarValues = {
+    logo: 'InsightCoder',
+    navLinks: [
+        { name: 'Features', href: '#features' },
+        { name: 'How it works', href: '#how-it-works' },
+    ],
+};
+
+export const mockupValues = {
+    editorLabel: 'EDITOR',
+    analysisLabel: 'AI ANALYSIS',
+    liveStatus: 'Live',
+    defaultLanguage: 'JavaScript',
+    modelName: 'Gemini',
+    explainBtn: 'Explain Code',
+    analyzingText: 'ANALYZING CODE...',
+    resultTitle: 'Analysis Result',
+    placeholderIcon: '✨',
+    placeholderText: 'Select a mode and click analyze to start generating AI insights.',
+    fullTextAnimation: "function analyze(code) {\n  return AI.process(code);\n}",
+    analysisResults: [
+        { label: 'Complexity', text: 'The function has O(n) time complexity and O(1) space complexity.', type: 'default' },
+        { label: 'Optimization Note', text: 'Consider using a Map for faster lookups in larger datasets.', type: 'accent' },
+        { label: 'Security Check', text: 'No vulnerabilities detected in the provided snippet.', type: 'success' },
+    ],
 };
 
 export const buttonLabels = {

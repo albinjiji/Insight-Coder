@@ -11,10 +11,16 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['var(--font-geist-sans)', ...defaultTheme.fontFamily.sans],
-        mono: ['var(--font-geist-mono)', ...defaultTheme.fontFamily.mono],
+        geist: ['var(--font-geist-sans)', ...defaultTheme.fontFamily.sans],
+        'geist-mono': ['var(--font-geist-mono)', ...defaultTheme.fontFamily.mono],
       },
       colors: {
+        'bg-base': '#080B10',
+        'bg-surface': '#0C111A',
+        'accent-blue': '#3b82f6',
+        'accent-violet': '#8B5CF6',
+        'text-primary': '#F8FAFC',
+        'text-muted': '#94A3B8',
         background: 'var(--background)',
         foreground: 'var(--foreground)',
         primary: '#171717',
