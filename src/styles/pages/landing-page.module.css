@@ -5,7 +5,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding-top: 5.5rem;
+  padding-top: 6rem;
   padding-bottom: 6rem;
   overflow: hidden;
   background-color: var(--bg-base);
@@ -146,17 +146,24 @@
 .primaryButton {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(to right, var(--accent-blue), #00A3FF);
-  color: var(--bg-base);
+  background: var(--accent-gradient);
+  color: #FFFFFF;
   font-weight: 700;
   padding: 1rem 2.5rem;
   border-radius: 0.75rem;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.25);
+  border: none;
 }
 
 .primaryButton:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 30px rgba(0, 245, 255, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(59, 130, 246, 0.35);
+  opacity: 0.95;
 }
 
 .featuresSection {
@@ -221,7 +228,7 @@
 
 .featureCard:hover {
   transform: translateY(-8px);
-  border-color: rgba(0, 245, 255, 0.4);
+  border-color: #8B5CF6;
   background-color: rgba(8, 11, 16, 0.9);
   box-shadow:
     0 20px 40px -10px rgba(0, 0, 0, 0.5),
@@ -232,8 +239,8 @@
   width: 3rem;
   height: 3rem;
   border-radius: 0.75rem;
-  background: linear-gradient(to bottom right, rgba(0, 245, 255, 0.15), rgba(139, 92, 246, 0.15));
-  border: 1px solid rgba(0, 245, 255, 0.1);
+  background: linear-gradient(to bottom right, rgba(121, 28, 191, 0.15), rgba(139, 92, 246, 0.15));
+  border: 1px solid rgba(121, 28, 191, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -272,8 +279,8 @@
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--accent-blue);
-  background-color: rgba(0, 245, 255, 0.1);
-  border: 1px solid rgba(0, 245, 255, 0.1);
+  background-color: rgba(121, 28, 191, 0.15);
+  border: 1px solid rgba(121, 28, 191, 0.15);
   padding: 0.25rem 0.75rem;
   border-radius: 0.25rem;
 }

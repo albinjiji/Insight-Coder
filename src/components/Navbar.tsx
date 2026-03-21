@@ -56,7 +56,7 @@ const Navbar = () => {
             ))}
             <Link
               href="/signin"
-              className="ml-4 font-geist-mono text-[10px] uppercase tracking-widest border border-accent-blue/25 bg-accent-blue/5 text-accent-blue px-6 py-2.5 rounded-full hover:bg-accent-blue/10 hover:shadow-[0_0_20px_rgba(59,130,246,0.15)] transition-all relative overflow-hidden btn-shimmer group"
+              className="ml-4 font-geist-mono text-[10px] bg-gradient-to-r from-accent-blue to-accent-violet text-white font-bold uppercase tracking-widest px-6 py-2.5 rounded-xl hover:opacity-90 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all relative overflow-hidden btn-shimmer group"
             >
               {buttonLabels.getStarted}
             </Link>
@@ -94,7 +94,7 @@ const Navbar = () => {
           <Link
             href="/signin"
             onClick={() => setIsMobileMenuOpen(false)}
-            className="mt-6 font-geist-mono text-xs uppercase tracking-[0.2em] border border-accent-blue/25 bg-accent-blue/5 text-accent-blue px-12 py-5 rounded-full shadow-[0_0_30px_rgba(59,130,246,0.1)]"
+            className="mt-6 font-geist-mono text-sm font-bold uppercase tracking-[0.2em] bg-gradient-to-r from-accent-blue to-accent-violet text-white px-12 py-5 rounded-xl shadow-[0_4px_20px_rgba(59,130,246,0.2)]"
           >
             {buttonLabels.getStarted}
           </Link>
